@@ -47,29 +47,7 @@ class RpcClient implements TransmissionAPI
      */
     public function torrentStart($sessionId, array $ids)
     {
-        try {
-            $response = $this
-                ->httpClient
-                ->post('', [
-                    'body' => $this->buildRequestBody('torrent-start', ['ids' => $ids]),
-                    'auth' => [$this->rpcUsername, $this->rpcPassword],
-                    'headers' => [
-                        'X-Transmission-Session-Id' => $sessionId
-                    ]
-                ]);
-
-            $responseBody = json_decode($response->getBody(), true);
-
-            if ($responseBody['result'] === 'error') {
-                throw new TransmissionException('The Transmission RPC API returned an error.');
-            }
-        } catch (ClientException $e) {
-            if (409 === $e->getCode()) {
-                throw new CSRFException('Invalid transmission session ID.', 0 , $e);
-            }
-        } catch (RequestException $e) {
-            throw new TransmissionException('Transmission request error.', 0, $e);
-        }
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-start', ['ids' => $ids]));
     }
 
     /**
@@ -82,7 +60,7 @@ class RpcClient implements TransmissionAPI
      */
     public function torrentStartNow($sessionId, array $ids)
     {
-        // TODO: Implement torrentStartNow() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-start-now', ['ids' => $ids]));
     }
 
     /**
@@ -424,5 +402,43 @@ class RpcClient implements TransmissionAPI
         }
 
         return json_encode($body);
+    }
+
+    /**
+     * Sends the request and handles the common errors.
+     *
+     * @param string $sessionId
+     * @param string $requestBody
+     * @return array
+     * @throws CSRFException
+     * @throws TransmissionException
+     */
+    private function sendRequest($sessionId, $requestBody)
+    {
+        try {
+            $response = $this
+                ->httpClient
+                ->post('', [
+                    'body' => $requestBody,
+                    'auth' => [$this->rpcUsername, $this->rpcPassword],
+                    'headers' => [
+                        'X-Transmission-Session-Id' => $sessionId
+                    ]
+                ]);
+
+            $responseBody = json_decode($response->getBody(), true);
+
+            if ($responseBody['result'] === 'error') {
+                throw new TransmissionException('The Transmission RPC API returned an error.');
+            }
+
+            return $responseBody;
+        } catch (ClientException $e) {
+            if (409 === $e->getCode()) {
+                throw new CSRFException('Invalid transmission session ID.', 0, $e);
+            }
+        } catch (RequestException $e) {
+            throw new TransmissionException('Transmission request error.', 0, $e);
+        }
     }
 }

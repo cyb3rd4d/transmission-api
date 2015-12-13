@@ -73,7 +73,7 @@ class RpcClient implements TransmissionAPI
      */
     public function torrentStop($sessionId, array $ids)
     {
-        // TODO: Implement torrentStop() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-stop', ['ids' => $ids]));
     }
 
     /**

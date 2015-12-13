@@ -99,7 +99,7 @@ class RpcClient implements TransmissionAPI
      */
     public function torrentReannounce($sessionId, array $ids)
     {
-        // TODO: Implement torrentReannounce() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-reannounce', ['ids' => $ids]));
     }
 
     /**

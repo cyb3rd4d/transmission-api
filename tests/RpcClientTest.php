@@ -3,6 +3,7 @@
 namespace Martial\Transmission\Api\Tests;
 
 use GuzzleHttp\Exception\ClientException;
+use Martial\Transmission\API\CSRFException;
 use Martial\Transmission\API\RpcClient;
 use Mockery as m;
 
@@ -83,9 +84,6 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $this->rpcClient->torrentStart($this->sessionId, self::TORRENT_IDS);
     }
 
-    /**
-     * @expectedException \Martial\Transmission\API\CSRFException
-     */
     public function testTorrentStartShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-start","arguments":{"ids":[42,1337]}}';
@@ -94,7 +92,11 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->sendRequest($requestBody)
             ->andThrow($this->generateCSRFException());
 
-        $this->rpcClient->torrentStart($this->sessionId, self::TORRENT_IDS);
+        try {
+            $this->rpcClient->torrentStart($this->sessionId, self::TORRENT_IDS);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
     }
 
     public function testTorrentStartNowWithSuccess()
@@ -140,9 +142,6 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $this->rpcClient->torrentStartNow($this->sessionId, self::TORRENT_IDS);
     }
 
-    /**
-     * @expectedException \Martial\Transmission\API\CSRFException
-     */
     public function testTorrentStartNowShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-start-now","arguments":{"ids":[42,1337]}}';
@@ -151,7 +150,11 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->sendRequest($requestBody)
             ->andThrow($this->generateCSRFException());
 
-        $this->rpcClient->torrentStartNow($this->sessionId, self::TORRENT_IDS);
+        try {
+            $this->rpcClient->torrentStartNow($this->sessionId, self::TORRENT_IDS);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
     }
 
     public function testTorrentStopWithSuccess()
@@ -197,9 +200,6 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $this->rpcClient->torrentStop($this->sessionId, self::TORRENT_IDS);
     }
 
-    /**
-     * @expectedException \Martial\Transmission\API\CSRFException
-     */
     public function testTorrentStopShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-stop","arguments":{"ids":[42,1337]}}';
@@ -208,7 +208,11 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->sendRequest($requestBody)
             ->andThrow($this->generateCSRFException());
 
-        $this->rpcClient->torrentStop($this->sessionId, self::TORRENT_IDS);
+        try {
+            $this->rpcClient->torrentStop($this->sessionId, self::TORRENT_IDS);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
     }
 
     public function testTorrentVerifyWithSuccess()
@@ -254,9 +258,6 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $this->rpcClient->torrentVerify($this->sessionId, self::TORRENT_IDS);
     }
 
-    /**
-     * @expectedException \Martial\Transmission\API\CSRFException
-     */
     public function testTorrentVerifyShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-verify","arguments":{"ids":[42,1337]}}';
@@ -265,7 +266,11 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->sendRequest($requestBody)
             ->andThrow($this->generateCSRFException());
 
-        $this->rpcClient->torrentVerify($this->sessionId, self::TORRENT_IDS);
+        try {
+            $this->rpcClient->torrentVerify($this->sessionId, self::TORRENT_IDS);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
     }
 
     public function testTorrentReannounceWithSuccess()
@@ -311,9 +316,6 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $this->rpcClient->torrentReannounce($this->sessionId, self::TORRENT_IDS);
     }
 
-    /**
-     * @expectedException \Martial\Transmission\API\CSRFException
-     */
     public function testTorrentReannounceShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-reannounce","arguments":{"ids":[42,1337]}}';
@@ -322,7 +324,11 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->sendRequest($requestBody)
             ->andThrow($this->generateCSRFException());
 
-        $this->rpcClient->torrentReannounce($this->sessionId, self::TORRENT_IDS);
+        try {
+            $this->rpcClient->torrentReannounce($this->sessionId, self::TORRENT_IDS);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
     }
 
     public function testTorrentSetWithSuccess()
@@ -372,9 +378,6 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
     }
 
-    /**
-     * @expectedException \Martial\Transmission\API\CSRFException
-     */
     public function testTorrentSetShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $arguments = ['downloadLimit' => 200, 'peer-limit' => 10];
@@ -384,7 +387,11 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->sendRequest($requestBody)
             ->andThrow($this->generateCSRFException());
 
-        $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
+        try {
+            $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
     }
 
     /**

@@ -480,7 +480,6 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-
     /**
      * @expectedException \Martial\Transmission\API\TransmissionException
      */
@@ -532,6 +531,77 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         try {
             $this->rpcClient->torrentAdd($this->sessionId, $arguments);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
+    public function testTorrentRemoveWithLocalDataWithSuccess()
+    {
+        $requestBody = '{"method":"torrent-remove","arguments":{"ids":[42,1337],"delete-local-data":true}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"success"}');
+
+        $this->rpcClient->torrentRemove($this->sessionId, self::TORRENT_IDS, true);
+    }
+
+    public function testTorrentRemoveDataWithSuccess()
+    {
+        $requestBody = '{"method":"torrent-remove","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"success"}');
+
+        $this->rpcClient->torrentRemove($this->sessionId, self::TORRENT_IDS);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentRemoveShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $requestBody = '{"method":"torrent-remove","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->torrentRemove($this->sessionId, self::TORRENT_IDS);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentRemoveShouldThrowAnExceptionWhenTheRpcApiReturnsAnError()
+    {
+        $requestBody = '{"method":"torrent-remove","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"error"}');
+
+        $this->rpcClient->torrentRemove($this->sessionId, self::TORRENT_IDS);
+    }
+
+    public function testTorrentRemoveShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $requestBody = '{"method":"torrent-remove","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->torrentRemove($this->sessionId, self::TORRENT_IDS);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }

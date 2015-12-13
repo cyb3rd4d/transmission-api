@@ -216,7 +216,13 @@ class RpcClient implements TransmissionAPI
      */
     public function torrentRemove($sessionId, array $ids, $deleteLocalData = false)
     {
-        // TODO: Implement torrentRemove() method.
+        $arguments = ['ids' => $ids];
+
+        if ($deleteLocalData) {
+            $arguments['delete-local-data'] = true;
+        }
+
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-remove', $arguments));
     }
 
     /**

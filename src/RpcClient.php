@@ -122,8 +122,8 @@ class RpcClient implements TransmissionAPI
     {
         $this->sendRequest($sessionId, $this->buildRequestBody(
             'torrent-set',
-            array_merge(['ids' => $ids], $argumentsWithValues))
-        );
+            array_merge(['ids' => $ids], $argumentsWithValues)
+        ));
     }
 
     /**
@@ -155,7 +155,12 @@ class RpcClient implements TransmissionAPI
      */
     public function torrentGet($sessionId, array $ids, array $fields = [])
     {
-        // TODO: Implement torrentGet() method.
+        $response = $this->sendRequest($sessionId, $this->buildRequestBody(
+            'torrent-get',
+            array_merge(['ids' => $ids], ['fields' => $fields])
+        ));
+
+        return $response['arguments']['torrents'];
     }
 
     /**

@@ -349,7 +349,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \Martial\Transmission\API\TransmissionException
      */
-    public function testTorrentRSetShouldThrowAnExceptionWhenTheRequestFails()
+    public function testTorrentSetShouldThrowAnExceptionWhenTheRequestFails()
     {
         $arguments = ['downloadLimit' => 200, 'peer-limit' => 10];
         $requestBody = '{"method":"torrent-set","arguments":{"ids":[42,1337],"downloadLimit":200,"peer-limit":10}}';
@@ -389,6 +389,73 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         try {
             $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
+    public function testTorrentGetWithSuccess()
+    {
+        $fields = ['name', 'totalSize'];
+        $requestBody = '{"method":"torrent-get","arguments":{"ids":[42,1337],"fields":["name","totalSize"]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody(
+            '{"arguments":{"torrents":[{"name":"Fedora","totalSize":12345}]},"result":"success"}'
+        );
+
+        $this->assertSame([
+            ['name' => 'Fedora', 'totalSize' => 12345]
+        ], $this->rpcClient->torrentGet($this->sessionId, self::TORRENT_IDS, $fields));
+    }
+
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentGetShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $fields = ['name', 'totalSize'];
+        $requestBody = '{"method":"torrent-get","arguments":{"ids":[42,1337],"fields":["name","totalSize"]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->torrentGet($this->sessionId, self::TORRENT_IDS, $fields);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentGetShouldThrowAnExceptionWhenTheRpcApiReturnsAnError()
+    {
+        $fields = ['creator', 'totalSize'];
+        $requestBody = '{"method":"torrent-get","arguments":{"ids":[42,1337],"fields":["creator","totalSize"]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"error"}');
+
+        $this->rpcClient->torrentGet($this->sessionId, self::TORRENT_IDS, $fields);
+    }
+
+    public function testTorrentGetShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $fields = ['creator', 'totalSize'];
+        $requestBody = '{"method":"torrent-get","arguments":{"ids":[42,1337],"fields":["creator","totalSize"]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->torrentGet($this->sessionId, self::TORRENT_IDS, $fields);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }

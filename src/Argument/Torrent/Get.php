@@ -1,0 +1,75 @@
+<?php
+
+namespace Martial\Transmission\API\Argument\Torrent;
+
+interface Get
+{
+    const ACTIVITY_DATE = 'activityDate';
+    const ADDED_DATE = 'addedDate';
+    const BANDWIDTH_PRIORITY = 'bandwidthPriority';
+    const COMMENT = 'comment';
+    const CORRUPT_EVER = 'corruptEver';
+    const CREATOR = 'creator';
+    const DATE_CREATED = 'dateCreated';
+    const DESIRED_AVAILABLE = 'desiredAvailable';
+    const DONE_DATE = 'doneDate';
+    const DOWNLOAD_DIR = 'downloadDir';
+    const DOWNLOAD_EVER = 'downloadedEver';
+    const DOWNLOAD_LIMIT = 'downloadLimit';
+    const DOWNLOAD_LIMITED = 'downloadLimited';
+    const ERROR = 'error';
+    const ERROR_STRING = 'errorString';
+    const ETA = 'eta';
+    const ETA_IDLE = 'etaIdle';
+    const FILES = 'files';
+    const FILE_STATS = 'fileStats';
+    const HASH_STRING = 'hashString';
+    const HAVE_UNCHECKED = 'haveUnchecked';
+    const HAVE_VALID = 'haveValid';
+    const HONORS_SESSION_LIMITS = 'honorsSessionLimits';
+    const ID = 'id';
+    const IS_FINISHED = 'isFinished';
+    const IS_PRIVATE = 'isPrivate';
+    const IS_STALLED = 'isStalled';
+    const LEFT_UNTIL_DONE = 'leftUntilDone';
+    const MAGNET_LINK = 'magnetLink';
+    const MANUAL_ANNOUNCE_TIME = 'manualAnnounceTime';
+    const MAX_CONNECTED_PEERS = 'maxConnectedPeers';
+    const METADATA_PERCENT_COMPLTE = 'metadataPercentComplete';
+    const NAME = 'name';
+    const PEER_LIMIT = 'peer-limit';
+    const PEERS = 'peers';
+    const PEERS_CONNECTED = 'peersConnected';
+    const PEERS_FROM = 'peersFrom';
+    const PEERS_GETTING_FROM_US = 'peersGettingFromUs';
+    const PEERS_SENDING_TO_US = 'peersSendingToUs';
+    const PERCENT_DONE = 'percentDone';
+    const PIECES = 'pieces';
+    const PIECE_COUNT = 'pieceCount';
+    const PIECE_SIZE = 'pieceSize';
+    const PIECE_PRIORITIES = 'priorities';
+    const QUEUE_POSITION = 'queuePosition';
+    const RATE_DOWNLOAD = 'rateDownload';
+    const RATE_UPLOAD = 'rateUpload';
+    const RECHECK_PROGRESS = 'recheckProgress';
+    const SECONDS_DOWNLOADING = 'secondsDownloading';
+    const SECONDS_SEEDING = 'secondsSeeding';
+    const SEED_IDLE_LIMIT = 'seedIdleLimit';
+    const SEED_IDLE_MODE = 'seedIdleMode';
+    const SEED_RATIO_LIMIT = 'seedRatioLimit';
+    const SEED_RATIO_MODE = 'seedRatioMode';
+    const SIZE_WHEN_DONE = 'sizeWhenDone';
+    const START_DATE = 'startDate';
+    const STATUS = 'status';
+    const TRACKERS = 'trackers';
+    const TRACKER_STATS = 'trackerStats';
+    const TOTAL_SIZE = 'totalSize';
+    const TORRENT_FILE = 'torrentFile';
+    const UPLOAD_EVER = 'uploadedEver';
+    const UPLOAD_LIMIT = 'uploadLimit';
+    const UPLOAD_LIMITED = 'uploadLimited';
+    const UPLOAD_RATION = 'uploadRatio';
+    const WANTED = 'wanted';
+    const WEBSEEDS = 'webseeds';
+    const WEBSEEDS_SENDING_TO_US = 'webseedsSendingToUs';
+}

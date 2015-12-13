@@ -549,7 +549,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $this->rpcClient->torrentRemove($this->sessionId, self::TORRENT_IDS, true);
     }
 
-    public function testTorrentRemoveDataWithSuccess()
+    public function testTorrentRemoveWithSuccess()
     {
         $requestBody = '{"method":"torrent-remove","arguments":{"ids":[42,1337]}}';
 
@@ -602,6 +602,86 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         try {
             $this->rpcClient->torrentRemove($this->sessionId, self::TORRENT_IDS);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
+    public function testTorrentSetLocationWithSuccess()
+    {
+        $location = '/path/to/file';
+        $requestBody = '{"method":"torrent-set-location","arguments":{"ids":[42,1337],"location":"';
+        $requestBody .= $location . '","move":false}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"success"}');
+
+        $this->rpcClient->torrentSetLocation($this->sessionId, self::TORRENT_IDS, $location);
+    }
+
+    public function testTorrentSetLocationWithMoveWithSuccess()
+    {
+        $location = '/path/to/file';
+        $requestBody = '{"method":"torrent-set-location","arguments":{"ids":[42,1337],"location":"';
+        $requestBody .= $location . '","move":true}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"success"}');
+
+        $this->rpcClient->torrentSetLocation($this->sessionId, self::TORRENT_IDS, $location, true);
+    }
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentSetLocationShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $location = '/path/to/file';
+        $requestBody = '{"method":"torrent-set-location","arguments":{"ids":[42,1337],"location":"';
+        $requestBody .= $location . '","move":false}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->torrentSetLocation($this->sessionId, self::TORRENT_IDS, $location);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentSetLocationShouldThrowAnExceptionWhenTheRpcApiReturnsAnError()
+    {
+        $location = '/path/to/file';
+        $requestBody = '{"method":"torrent-set-location","arguments":{"ids":[42,1337],"location":"';
+        $requestBody .= $location . '","move":false}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"error"}');
+
+        $this->rpcClient->torrentSetLocation($this->sessionId, self::TORRENT_IDS, $location);
+    }
+
+    public function testTorrentSetLocationShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $location = '/path/to/file';
+        $requestBody = '{"method":"torrent-set-location","arguments":{"ids":[42,1337],"location":"';
+        $requestBody .= $location . '","move":false}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->torrentSetLocation($this->sessionId, self::TORRENT_IDS, $location);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }

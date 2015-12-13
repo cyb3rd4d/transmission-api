@@ -239,7 +239,11 @@ class RpcClient implements TransmissionAPI
      */
     public function torrentSetLocation($sessionId, array $ids, $location, $move = false)
     {
-        // TODO: Implement torrentSetLocation() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-set-location', [
+            'ids' => $ids,
+            'location' => $location,
+            'move' => $move
+        ]));
     }
 
     /**

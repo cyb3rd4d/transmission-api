@@ -211,6 +211,63 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $this->rpcClient->torrentStop($this->sessionId, self::TORRENT_IDS);
     }
 
+    public function testTorrentVerifyNowWithSuccess()
+    {
+        $requestBody = '{"method":"torrent-verify","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"success"}');
+
+        $this->rpcClient->torrentVerify($this->sessionId, self::TORRENT_IDS);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentVerifyNowShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $requestBody = '{"method":"torrent-verify","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->torrentVerify($this->sessionId, self::TORRENT_IDS);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentVerifyNowShouldThrowAnExceptionWhenTheRpcApiReturnsAnError()
+    {
+        $requestBody = '{"method":"torrent-verify","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"error"}');
+
+        $this->rpcClient->torrentVerify($this->sessionId, self::TORRENT_IDS);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\CSRFException
+     */
+    public function testTorrentVerifyNowShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $requestBody = '{"method":"torrent-verify","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        $this->rpcClient->torrentVerify($this->sessionId, self::TORRENT_IDS);
+    }
+
     /**
      * @return ClientException
      */

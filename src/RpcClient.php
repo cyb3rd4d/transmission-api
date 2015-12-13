@@ -86,7 +86,7 @@ class RpcClient implements TransmissionAPI
      */
     public function torrentVerify($sessionId, array $ids)
     {
-        // TODO: Implement torrentVerify() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-verify', ['ids' => $ids]));
     }
 
     /**

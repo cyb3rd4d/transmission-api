@@ -103,22 +103,27 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Sets the given method with the given value to the given torrent IDs.
+     * Applies the given arguments with their values to the given torrent IDs.
      * The available methods are defined in the constants of the interface Martial\Transmission\Argument\Torrent\Set.
      * Each of them has a block of documentation to know the accepted value type.
      * Using an empty array for "files-wanted", "files-unwanted", "priority-high", "priority-low", or
-     * "priority-normal" is shorthand for saying "all files".
+     * "priority-normal" is shorthand for saying "all files". Ex:
+     * <code>
+     * $client->torrentSet('iefjzo234fez', [42, 1337], ['downloadLimit' => 200]);
+     * </code>
      *
      * @param string $sessionId
      * @param array $ids
-     * @param string $method
-     * @param mixed $value
+     * @param array $argumentsWithValues
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentSet($sessionId, array $ids, $method, $value)
+    public function torrentSet($sessionId, array $ids, array $argumentsWithValues)
     {
-        // TODO: Implement torrentSet() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody(
+            'torrent-set',
+            array_merge(['ids' => $ids], $argumentsWithValues))
+        );
     }
 
     /**

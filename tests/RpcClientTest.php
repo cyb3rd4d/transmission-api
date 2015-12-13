@@ -325,6 +325,68 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $this->rpcClient->torrentReannounce($this->sessionId, self::TORRENT_IDS);
     }
 
+    public function testTorrentSetWithSuccess()
+    {
+        $arguments = ['downloadLimit' => 200, 'peer-limit' => 10];
+        $requestBody = '{"method":"torrent-set","arguments":{"ids":[42,1337],"downloadLimit":200,"peer-limit":10}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"success"}');
+
+        $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
+    }
+
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentRSetShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $arguments = ['downloadLimit' => 200, 'peer-limit' => 10];
+        $requestBody = '{"method":"torrent-set","arguments":{"ids":[42,1337],"downloadLimit":200,"peer-limit":10}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentSetShouldThrowAnExceptionWhenTheRpcApiReturnsAnError()
+    {
+        $arguments = ['downloadLimit' => 200, 'peer-limit' => 10];
+        $requestBody = '{"method":"torrent-set","arguments":{"ids":[42,1337],"downloadLimit":200,"peer-limit":10}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"error"}');
+
+        $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\CSRFException
+     */
+    public function testTorrentSetShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $arguments = ['downloadLimit' => 200, 'peer-limit' => 10];
+        $requestBody = '{"method":"torrent-set","arguments":{"ids":[42,1337],"downloadLimit":200,"peer-limit":10}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
+    }
+
     /**
      * @return ClientException
      */

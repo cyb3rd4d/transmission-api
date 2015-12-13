@@ -412,7 +412,6 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         ], $this->rpcClient->torrentGet($this->sessionId, self::TORRENT_IDS, $fields));
     }
 
-
     /**
      * @expectedException \Martial\Transmission\API\TransmissionException
      */
@@ -456,6 +455,83 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         try {
             $this->rpcClient->torrentGet($this->sessionId, self::TORRENT_IDS, $fields);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
+    public function testTorrentAddWithSuccess()
+    {
+        $arguments = ['filename' => '/path/to/Fedora.torrent'];
+        $requestBody = '{"method":"torrent-add","arguments":{"filename":"/path/to/Fedora.torrent"}}';
+        $hashString = md5('Fedora.iso');
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody(
+            '{"arguments":{"torrents":[{"id":42,"name":"Fedora.iso","hashString":"' . $hashString . '"}]},"result":"success"}'
+        );
+
+        $this->assertSame(
+            ['id' => 42, 'name' => 'Fedora.iso', 'hashString' => $hashString],
+            $this->rpcClient->torrentAdd($this->sessionId, $arguments)
+        );
+    }
+
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentAddShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $arguments = ['filename' => '/path/to/Fedora.torrent'];
+        $requestBody = '{"method":"torrent-add","arguments":{"filename":"/path/to/Fedora.torrent"}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->torrentAdd($this->sessionId, $arguments);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentAddShouldThrowAnExceptionWhenTheRpcApiReturnsAnError()
+    {
+        $arguments = ['filename' => '/path/to/Fedora.torrent'];
+        $requestBody = '{"method":"torrent-add","arguments":{"filename":"/path/to/Fedora.torrent"}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"error"}');
+
+        $this->rpcClient->torrentAdd($this->sessionId, $arguments);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\MissingArgumentException
+     */
+    public function testTorrentAddShouldThrowAnExceptionWhenRequiredArgumentIsMissing()
+    {
+        $this->rpcClient->torrentAdd($this->sessionId, ['invalidArgument' => '']);
+    }
+
+    public function testTorrentAddShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $arguments = ['filename' => '/path/to/Fedora.torrent'];
+        $requestBody = '{"method":"torrent-add","arguments":{"filename":"/path/to/Fedora.torrent"}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->torrentAdd($this->sessionId, $arguments);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }

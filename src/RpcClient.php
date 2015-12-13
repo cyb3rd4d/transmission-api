@@ -5,6 +5,7 @@ namespace Martial\Transmission\API;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
+use Martial\Transmission\API\Argument\Torrent\Add;
 
 class RpcClient implements TransmissionAPI
 {
@@ -177,15 +178,30 @@ class RpcClient implements TransmissionAPI
      * </code>
      *
      * @param string $sessionId
-     * @param array $arguments
+     * @param array $argumentsWithValues
      * @return array
      * @throws DuplicateTorrentException
      * @throws TransmissionException
      * @throws CSRFException
+     * @throws MissingArgumentException
      */
-    public function torrentAddBy($sessionId, array $arguments)
+    public function torrentAdd($sessionId, array $argumentsWithValues)
     {
-        // TODO: Implement torrentAddBy() method.
+        if (!isset($argumentsWithValues[Add::FILENAME]) && !isset($argumentsWithValues[Add::METAINFO])) {
+            throw new MissingArgumentException(sprintf(
+                'You must provide at least the argument "%s" or "%s" to the method %s',
+                Add::FILENAME,
+                Add::METAINFO,
+                __METHOD__
+            ));
+        }
+
+        $response = $this->sendRequest($sessionId, $this->buildRequestBody(
+            'torrent-add',
+            $argumentsWithValues
+        ));
+
+        return $response['arguments']['torrents'][0];
     }
 
     /**
@@ -411,7 +427,7 @@ class RpcClient implements TransmissionAPI
             $body->arguments->$argument = $value;
         }
 
-        return json_encode($body);
+        return json_encode($body, JSON_UNESCAPED_SLASHES);
     }
 
     /**

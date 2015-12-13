@@ -134,13 +134,14 @@ interface TransmissionAPI
      * </code>
      *
      * @param string $sessionId
-     * @param array $arguments
+     * @param array $argumentsWithValues
      * @return array
      * @throws DuplicateTorrentException
      * @throws TransmissionException
      * @throws CSRFException
+     * @throws MissingArgumentException
      */
-    public function torrentAddBy($sessionId, array $arguments);
+    public function torrentAdd($sessionId, array $argumentsWithValues);
 
     /**
      * Removes the given torrent IDs from the download queue.

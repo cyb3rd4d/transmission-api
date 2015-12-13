@@ -22,5 +22,8 @@
             "Martial\\Transmission\\API\\": "src/",
             "Martial\\Transmission\\API\\Tests\\": "tests/"
         }
+    },
+    "config": {
+        "bin-dir": "bin"
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Martial\Transmission\API\Argument\Session;
 
-interface Set extends Common
+interface Set extends Accessor
 {
 
 }

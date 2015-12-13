@@ -2,7 +2,7 @@
 
 namespace Martial\Transmission\API\Argument\Session;
 
-interface Common
+interface Accessor
 {
     /**
      * Value type: number

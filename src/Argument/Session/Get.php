@@ -2,7 +2,7 @@
 
 namespace Martial\Transmission\API\Argument\Session;
 
-interface Get extends Common
+interface Get extends Accessor
 {
     /**
      * Value type: number

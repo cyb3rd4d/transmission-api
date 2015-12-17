@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model
+        xlink:href="/usr/share/php5/PEAR/data/phing/etc/phing-grammar.rng"
+        type="application/xml"
+        schematypens="http://relaxng.org/ns/structure/1.0"?>
+
+<project name="transmission-client" basedir="." default="build">
+    <property name="binDir" value="${project.basedir}/bin" />
+    <property name="buildDir" value="${project.basedir}/build" />
+
+    <target name="clean">
+        <delete dir="${buildDir}" />
+    </target>
+
+    <target name="prepare">
+        <mkdir dir="${buildDir}" />
+        <mkdir dir="${buildDir}/junit" />
+        <mkdir dir="${buildDir}/coverage/html" />
+    </target>
+
+    <target name="composer_install">
+        <exec command="composer install" checkreturn="true" passthru="true" />
+    </target>
+
+    <target name="technical_tests">
+        <exec executable="${binDir}/phpunit" checkreturn="true" passthru="true">
+            <arg value="-c" />
+            <arg file="phpunit.xml" />
+            <arg value="--log-junit" />
+            <arg file="${buildDir}/junit/logfile.xml" />
+            <arg value="--coverage-html" />
+            <arg file="${buildDir}/coverage/html" />
+            <arg value="--coverage-clover" />
+            <arg file="${buildDir}/coverage/coverage.xml" />
+        </exec>
+    </target>
+
+    <target name="build" depends="clean,prepare,composer_install">
+        <phingcall target="technical_tests" />
+    </target>
+</project>

@@ -461,14 +461,6 @@ class RpcClient implements TransmissionAPI
                         'X-Transmission-Session-Id' => $sessionId
                     ]
                 ]);
-
-            $responseBody = json_decode($response->getBody(), true);
-
-            if ($responseBody['result'] === 'error') {
-                throw new TransmissionException('The Transmission RPC API returned an error.');
-            }
-
-            return $responseBody;
         } catch (ClientException $e) {
             if (409 === $e->getCode()) {
                 $csrfException = new CSRFException('Invalid transmission session ID.', 0, $e);
@@ -476,8 +468,18 @@ class RpcClient implements TransmissionAPI
 
                 throw $csrfException;
             }
+
+            throw $e;
         } catch (RequestException $e) {
             throw new TransmissionException('Transmission request error.', 0, $e);
         }
+
+        $responseBody = json_decode($response->getBody(), true);
+
+        if ($responseBody['result'] === 'error') {
+            throw new TransmissionException('The Transmission RPC API returned an error.');
+        }
+
+        return $responseBody;
     }
 }

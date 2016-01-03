@@ -765,6 +765,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         $this->rpcClient->torrentSetLocation($this->sessionId, self::TORRENT_IDS, $location, true);
     }
+
     /**
      * @expectedException \Martial\Transmission\API\TransmissionException
      */
@@ -827,6 +828,122 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         try {
             $this->rpcClient->torrentSetLocation($this->sessionId, self::TORRENT_IDS, $location);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
+    public function testTorrentRenamePathWithSuccess()
+    {
+        $oldPath = 'torrent.iso';
+        $newPath = 'new-torrent.iso';
+
+        $requestBody = sprintf(
+            '{"method":"torrent-rename-path","arguments":{"ids":[42],"path":"%s","name":"%s"}}',
+            $oldPath,
+            $newPath
+        );
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody(sprintf(
+            '{"arguments":{"id":42,"name":"%s","path":"%s"},"result":"success"}',
+            $newPath,
+            $oldPath
+        ));
+
+        $result = $this->rpcClient->torrentRenamePath($this->sessionId, 42, $oldPath, $newPath);
+        $this->assertSame(['id' => 42, 'name' => $newPath, 'path' => $oldPath], $result);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentRenamePathFailedBecauseOfInvalidPaths()
+    {
+        $oldPath = 'invalid-torrent.iso';
+        $newPath = 'invalid-new-torrent.iso';
+
+        $requestBody = sprintf(
+            '{"method":"torrent-rename-path","arguments":{"ids":[42],"path":"%s","name":"%s"}}',
+            $oldPath,
+            $newPath
+        );
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody(sprintf(
+            '{"arguments":{"id":42,"name":"%s","path":"%s"},"result":"Invalid argument"}',
+            $newPath,
+            $oldPath
+        ));
+
+        $this->rpcClient->torrentRenamePath($this->sessionId, 42, $oldPath, $newPath);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testTorrentRenamePathShouldThrowAnExceptionWhenTheServerReturnsAnError500()
+    {
+        $oldPath = 'torrent.iso';
+        $newPath = 'new-torrent.iso';
+
+        $requestBody = sprintf(
+            '{"method":"torrent-rename-path","arguments":{"ids":[42],"path":"%s","name":"%s"}}',
+            $oldPath,
+            $newPath
+        );
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->torrentRenamePath($this->sessionId, 42, $oldPath, $newPath);
+    }
+
+    /**
+     * @expectedException \GuzzleHttp\Exception\ClientException
+     */
+    public function testTorrentRenamePathShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $oldPath = 'torrent.iso';
+        $newPath = 'new-torrent.iso';
+
+        $requestBody = sprintf(
+            '{"method":"torrent-rename-path","arguments":{"ids":[42],"path":"%s","name":"%s"}}',
+            $oldPath,
+            $newPath
+        );
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\ClientException'));
+
+        $this->rpcClient->torrentRenamePath($this->sessionId, 42, $oldPath, $newPath);
+    }
+
+    public function testTorrentRenamePathShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $oldPath = 'torrent.iso';
+        $newPath = 'new-torrent.iso';
+
+        $requestBody = sprintf(
+            '{"method":"torrent-rename-path","arguments":{"ids":[42],"path":"%s","name":"%s"}}',
+            $oldPath,
+            $newPath
+        );
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->torrentRenamePath($this->sessionId, 42, $oldPath, $newPath);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }

@@ -248,6 +248,7 @@ class RpcClient implements TransmissionAPI
 
     /**
      * Renames a torrent path.
+     * The old and new paths are relative to the download directory of your Transmission settings.
      * Returns an array of torrent data. Ex:
      * <code>
      * [
@@ -267,7 +268,13 @@ class RpcClient implements TransmissionAPI
      */
     public function torrentRenamePath($sessionId, $id, $oldPath, $newPath)
     {
-        // TODO: Implement torrentRenamePath() method.
+        $response = $this->sendRequest($sessionId, $this->buildRequestBody('torrent-rename-path', [
+            'ids' => [$id],
+            'path' => $oldPath,
+            'name' => $newPath
+        ]));
+
+        return $response['arguments'];
     }
 
     /**
@@ -476,8 +483,8 @@ class RpcClient implements TransmissionAPI
 
         $responseBody = json_decode($response->getBody(), true);
 
-        if ($responseBody['result'] === 'error') {
-            throw new TransmissionException('The Transmission RPC API returned an error.');
+        if ($responseBody['result'] !== 'success') {
+            throw new TransmissionException('The Transmission RPC API returned an error: ' . $responseBody['result']);
         }
 
         return $responseBody;

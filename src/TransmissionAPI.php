@@ -171,6 +171,7 @@ interface TransmissionAPI
 
     /**
      * Renames a torrent path.
+     * The old and new paths are relative to the download directory of your Transmission settings.
      * Returns an array of torrent data. Ex:
      * <code>
      * [

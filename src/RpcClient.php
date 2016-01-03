@@ -336,7 +336,9 @@ class RpcClient implements TransmissionAPI
      */
     public function sessionStats($sessionId)
     {
-        // TODO: Implement sessionStats() method.
+        $response = $this->sendRequest($sessionId, $this->buildRequestBody('session-stats'));
+
+        return $response['arguments'];
     }
 
     /**

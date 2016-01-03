@@ -1199,6 +1199,79 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testBlocklistUpdateWithSuccess()
+    {
+        $requestBody = '{"method":"blocklist-update"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $jsonResponse = '{"arguments":{"blocklist-size":393003},"result":"success"}';
+        $this->setResponseBody($jsonResponse);
+        $result = $this->rpcClient->blocklistUpdate($this->sessionId);
+        $this->assertSame(393003, $result);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\BlocklistNotFoundException
+     */
+    public function testBlocklistUpdateShouldThrowAnExceptionWhenTheBlocklistUrlWasNotFound()
+    {
+        $requestBody = '{"method":"blocklist-update"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $jsonResponse = '{"arguments":{},"result":"gotNewBlocklist: http error 404: Not Found"}';
+        $this->setResponseBody($jsonResponse);
+        $this->rpcClient->blocklistUpdate($this->sessionId);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testBlocklistUpdateShouldThrowAnExceptionWhenTheServerReturnsAnError500()
+    {
+        $requestBody = '{"method":"blocklist-update"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->blocklistUpdate($this->sessionId);
+    }
+
+    /**
+     * @expectedException \GuzzleHttp\Exception\ClientException
+     */
+    public function testBlocklistUpdateShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $requestBody = '{"method":"blocklist-update"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\ClientException'));
+
+        $this->rpcClient->blocklistUpdate($this->sessionId);
+    }
+
+    public function testBlocklistUpdateShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $requestBody = '{"method":"blocklist-update"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->blocklistUpdate($this->sessionId);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
     /**
      * @return ClientException
      */

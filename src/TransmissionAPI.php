@@ -233,6 +233,7 @@ interface TransmissionAPI
      * @return int
      * @throws TransmissionException
      * @throws CSRFException
+     * @throws BlocklistNotFoundException
      */
     public function blocklistUpdate($sessionId);
 

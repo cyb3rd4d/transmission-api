@@ -349,10 +349,21 @@ class RpcClient implements TransmissionAPI
      * @return int
      * @throws TransmissionException
      * @throws CSRFException
+     * @throws BlocklistNotFoundException
      */
     public function blocklistUpdate($sessionId)
     {
-        // TODO: Implement blocklistUpdate() method.
+        try {
+            $response = $this->sendRequest($sessionId, $this->buildRequestBody('blocklist-update'));
+        } catch (TransmissionException $e) {
+            if ('gotNewBlocklist: http error 404: Not Found' === $e->getResult()) {
+                throw new BlocklistNotFoundException();
+            } else {
+                throw $e;
+            }
+        }
+
+        return $response['arguments']['blocklist-size'];
     }
 
     /**
@@ -508,7 +519,10 @@ class RpcClient implements TransmissionAPI
         $responseBody = json_decode($response->getBody(), true);
 
         if ($responseBody['result'] !== 'success') {
-            throw new TransmissionException('The Transmission RPC API returned an error: ' . $responseBody['result']);
+            $e = new TransmissionException('The Transmission RPC API returned an error: ' . $responseBody['result']);
+            $e->setResult($responseBody['result']);
+
+            throw $e;
         }
 
         return $responseBody;

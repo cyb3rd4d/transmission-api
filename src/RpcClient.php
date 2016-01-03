@@ -376,7 +376,9 @@ class RpcClient implements TransmissionAPI
      */
     public function portTest($sessionId)
     {
-        // TODO: Implement portTest() method.
+        $response = $this->sendRequest($sessionId, $this->buildRequestBody('port-test'));
+
+        return $response['arguments']['port-is-open'];
     }
 
     /**

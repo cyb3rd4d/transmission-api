@@ -1272,6 +1272,75 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testPortTestReturnsTrueWithSuccess()
+    {
+        $requestBody = '{"method":"port-test"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $jsonResponse = '{"arguments":{"port-is-open":true},"result":"success"}';
+        $this->setResponseBody($jsonResponse);
+        $this->assertTrue($this->rpcClient->portTest($this->sessionId));
+    }
+
+    public function testPortTestReturnsFalseWithSuccess()
+    {
+        $requestBody = '{"method":"port-test"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $jsonResponse = '{"arguments":{"port-is-open":false},"result":"success"}';
+        $this->setResponseBody($jsonResponse);
+        $this->assertFalse($this->rpcClient->portTest($this->sessionId));
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testPortTestShouldThrowAnExceptionWhenTheServerReturnsAnError500()
+    {
+        $requestBody = '{"method":"port-test"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->portTest($this->sessionId);
+    }
+
+    /**
+     * @expectedException \GuzzleHttp\Exception\ClientException
+     */
+    public function testPortTestShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $requestBody = '{"method":"port-test"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\ClientException'));
+
+        $this->rpcClient->portTest($this->sessionId);
+    }
+
+    public function testPortTestShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $requestBody = '{"method":"port-test"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->portTest($this->sessionId);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
     /**
      * @return ClientException
      */

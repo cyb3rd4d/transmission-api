@@ -289,7 +289,24 @@ class RpcClient implements TransmissionAPI
      */
     public function sessionSet($sessionId, array $argumentsWithValues)
     {
-        // TODO: Implement sessionSet() method.
+        $invalidArguments = [
+            'blocklist-size',
+            'config-dir',
+            'rpc-version',
+            'rpc-version-minimum',
+            'version',
+        ];
+
+        foreach ($invalidArguments as $invalidArgument) {
+            if (isset($argumentsWithValues[$invalidArgument])) {
+                throw new TransmissionException(sprintf(
+                    'You can not pass the argument "%s" to the sessionSet method.',
+                    $invalidArgument
+                ));
+            }
+        }
+
+        $this->sendRequest($sessionId, $this->buildRequestBody('session-set', $argumentsWithValues));
     }
 
     /**

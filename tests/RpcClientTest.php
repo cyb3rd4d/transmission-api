@@ -949,6 +949,142 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testSessionSetWithSuccess()
+    {
+        $downloadDir = '/path/to/download-dir';
+        $peerLimitGlobal = 42;
+
+        $sessionArgs = [
+            'download-dir' => $downloadDir,
+            'peer-limit-global' => $peerLimitGlobal,
+        ];
+
+        $requestBody = sprintf(
+            '{"method":"session-set","arguments":{"download-dir":"%s","peer-limit-global":%d}}',
+            $downloadDir,
+            $peerLimitGlobal
+        );
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody('{"arguments":{},"result":"success"}');
+
+        $this->rpcClient->sessionSet($this->sessionId, $sessionArgs);
+    }
+
+    public function testSessionSetShouldThrowAnExceptionWithUnauthorizedArguments()
+    {
+        $invalidArguments = [
+            'blocklist-size' => 42,
+            'config-dir' => '/path/to/config',
+            'rpc-version' => 42,
+            'rpc-version-minimum' => 42,
+            'version' => 42,
+        ];
+
+        $requestBody = '{"method":"session-set","arguments":{"<argument>":<value>}}';
+
+        foreach ($invalidArguments as $argument => $value) {
+            $argumentValue = is_string($value) ? '"' . $value . '"' : $value;
+            $requestBody = str_replace([
+                '<argument>',
+                '<value>',
+            ], [
+                $argument,
+                $argumentValue,
+            ], $requestBody);
+
+            try {
+                $this->rpcClient->sessionSet($this->sessionId, [$argument => $value]);
+            } catch (\Martial\Transmission\API\TransmissionException $e) {
+                continue;
+            }
+
+            $this->fail(sprintf('sessionSet should throw and exception with the argument %s.', $argument));
+        }
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testSessionSetShouldThrowAnExceptionWhenTheServerReturnsAnError500()
+    {
+        $downloadDir = '/path/to/download-dir';
+        $peerLimitGlobal = 42;
+
+        $sessionArgs = [
+            'download-dir' => $downloadDir,
+            'peer-limit-global' => $peerLimitGlobal,
+        ];
+
+        $requestBody = sprintf(
+            '{"method":"session-set","arguments":{"download-dir":"%s","peer-limit-global":%d}}',
+            $downloadDir,
+            $peerLimitGlobal
+        );
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->sessionSet($this->sessionId, $sessionArgs);
+    }
+
+    /**
+     * @expectedException \GuzzleHttp\Exception\ClientException
+     */
+    public function testSessionSetShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $downloadDir = '/path/to/download-dir';
+        $peerLimitGlobal = 42;
+
+        $sessionArgs = [
+            'download-dir' => $downloadDir,
+            'peer-limit-global' => $peerLimitGlobal,
+        ];
+
+        $requestBody = sprintf(
+            '{"method":"session-set","arguments":{"download-dir":"%s","peer-limit-global":%d}}',
+            $downloadDir,
+            $peerLimitGlobal
+        );
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\ClientException'));
+
+        $this->rpcClient->sessionSet($this->sessionId, $sessionArgs);
+    }
+
+    public function testSessionSetShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $downloadDir = '/path/to/download-dir';
+        $peerLimitGlobal = 42;
+
+        $sessionArgs = [
+            'download-dir' => $downloadDir,
+            'peer-limit-global' => $peerLimitGlobal,
+        ];
+
+        $requestBody = sprintf(
+            '{"method":"session-set","arguments":{"download-dir":"%s","peer-limit-global":%d}}',
+            $downloadDir,
+            $peerLimitGlobal
+        );
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->sessionSet($this->sessionId, $sessionArgs);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
     /**
      * @return ClientException
      */

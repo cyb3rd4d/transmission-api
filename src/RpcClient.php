@@ -320,7 +320,9 @@ class RpcClient implements TransmissionAPI
      */
     public function sessionGet($sessionId)
     {
-        // TODO: Implement sessionGet() method.
+        $response = $this->sendRequest($sessionId, $this->buildRequestBody('session-get'));
+
+        return $response['arguments'];
     }
 
     /**
@@ -451,14 +453,17 @@ class RpcClient implements TransmissionAPI
      * @param array $arguments
      * @return string
      */
-    private function buildRequestBody($method, array $arguments)
+    private function buildRequestBody($method, array $arguments = [])
     {
         $body = new \StdClass();
         $body->method = $method;
-        $body->arguments = new \StdClass();
 
-        foreach ($arguments as $argument => $value) {
-            $body->arguments->$argument = $value;
+        if (!empty($arguments)) {
+            $body->arguments = new \StdClass();
+
+            foreach ($arguments as $argument => $value) {
+                $body->arguments->$argument = $value;
+            }
         }
 
         return json_encode($body, JSON_UNESCAPED_SLASHES);

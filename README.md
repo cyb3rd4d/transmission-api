@@ -10,7 +10,7 @@ with PHPUnit and as close as possible from the original RPC interface.
 With composer:
 
 ```sh
-composer require 'martial/transmission-api:~1.0"
+composer require 'martial/transmission-api:~1.0'
 ```
 
 ## Usage

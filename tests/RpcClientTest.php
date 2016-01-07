@@ -1397,6 +1397,62 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testQueueMoveTopWithSuccess()
+    {
+        $requestBody = '{"method":"queue-move-top","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $jsonResponse = '{"arguments":{},"result":"success"}';
+        $this->setResponseBody($jsonResponse);
+        $this->rpcClient->queueMoveTop($this->sessionId, [42, 1337]);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testQueueMoveTopShouldThrowAnExceptionWhenTheServerReturnsAnError500()
+    {
+        $requestBody = '{"method":"queue-move-top","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->queueMoveTop($this->sessionId, [42, 1337]);
+    }
+
+    /**
+     * @expectedException \GuzzleHttp\Exception\ClientException
+     */
+    public function testQueueMoveTopShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $requestBody = '{"method":"queue-move-top","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\ClientException'));
+
+        $this->rpcClient->queueMoveTop($this->sessionId, [42, 1337]);
+    }
+
+    public function testQueueMoveTopShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $requestBody = '{"method":"queue-move-top","arguments":{"ids":[42,1337]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->queueMoveTop($this->sessionId, [42, 1337]);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
     /**
      * @return ClientException
      */

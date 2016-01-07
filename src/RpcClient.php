@@ -403,7 +403,7 @@ class RpcClient implements TransmissionAPI
      */
     public function queueMoveTop($sessionId, array $ids)
     {
-        // TODO: Implement queueMoveTop() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-top', ['ids' => $ids]));
     }
 
     /**

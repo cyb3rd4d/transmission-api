@@ -442,7 +442,7 @@ class RpcClient implements TransmissionAPI
      */
     public function queueMoveBottom($sessionId, array $ids)
     {
-        // TODO: Implement queueMoveBottom() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-bottom', ['ids' => $ids]));
     }
 
     /**

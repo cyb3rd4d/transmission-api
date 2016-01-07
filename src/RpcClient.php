@@ -416,7 +416,7 @@ class RpcClient implements TransmissionAPI
      */
     public function queueMoveDown($sessionId, array $ids)
     {
-        // TODO: Implement queueMoveDown() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-down', ['ids' => $ids]));
     }
 
     /**

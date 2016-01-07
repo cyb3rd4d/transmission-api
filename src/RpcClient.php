@@ -390,7 +390,7 @@ class RpcClient implements TransmissionAPI
      */
     public function sessionClose($sessionId)
     {
-        // TODO: Implement sessionClose() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('session-close'));
     }
 
     /**

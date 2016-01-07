@@ -1341,6 +1341,62 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testSessionCloseWithSuccess()
+    {
+        $requestBody = '{"method":"session-close"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $jsonResponse = '{"arguments":{},"result":"success"}';
+        $this->setResponseBody($jsonResponse);
+        $this->rpcClient->sessionClose($this->sessionId);
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testSessionCloseShouldThrowAnExceptionWhenTheServerReturnsAnError500()
+    {
+        $requestBody = '{"method":"session-close"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->sessionClose($this->sessionId);
+    }
+
+    /**
+     * @expectedException \GuzzleHttp\Exception\ClientException
+     */
+    public function testSessionCloseShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $requestBody = '{"method":"session-close"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\ClientException'));
+
+        $this->rpcClient->sessionClose($this->sessionId);
+    }
+
+    public function testSessionCloseShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $requestBody = '{"method":"session-close"}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->sessionClose($this->sessionId);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
     /**
      * @return ClientException
      */

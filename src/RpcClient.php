@@ -429,7 +429,7 @@ class RpcClient implements TransmissionAPI
      */
     public function queueMoveUp($sessionId, array $ids)
     {
-        // TODO: Implement queueMoveUp() method.
+        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-up', ['ids' => $ids]));
     }
 
     /**

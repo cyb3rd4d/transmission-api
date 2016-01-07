@@ -5,6 +5,7 @@ namespace Martial\Transmission\Api\Tests;
 use GuzzleHttp\Exception\ClientException;
 use Martial\Transmission\API\CSRFException;
 use Martial\Transmission\API\RpcClient;
+use Martial\Transmission\API\TransmissionException;
 use Mockery as m;
 
 class RpcClientTest extends \PHPUnit_Framework_TestCase
@@ -1616,6 +1617,86 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         try {
             $this->rpcClient->queueMoveBottom($this->sessionId, [42, 1337]);
+        } catch (CSRFException $e) {
+            $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
+    public function testFreeSpaceWithSuccess()
+    {
+        $requestBody = '{"method":"free-space","arguments":{"path":"/var/lib/transmission-daemon/downloads"}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $jsonResponse = '{"arguments":{"path":"/var/lib/transmission-daemon/downloads","size-bytes":37548523520},"result":"success"}';
+        $this->setResponseBody($jsonResponse);
+        $this->rpcClient->freeSpace($this->sessionId, '/var/lib/transmission-daemon/downloads');
+    }
+
+    public function testFreeSpaceShouldThrowAnExceptionWhenThePathIsInvalid()
+    {
+        $requestBody = '{"method":"free-space","arguments":{"path":"/invalid/path"}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $jsonResponse = '{"arguments":{"path":"/invalid/path","size-bytes":-1},"result":"No such file or directory"}';
+        $this->setResponseBody($jsonResponse);
+
+        try {
+            $success = false;
+            $this->rpcClient->freeSpace($this->sessionId, '/invalid/path');
+        } catch (TransmissionException $e) {
+            $this->assertSame('No such file or directory', $e->getResult());
+            $success = true;
+        }
+
+        if (!$success) {
+            $this->fail('An invalid path should throw an exception.');
+        }
+    }
+
+    /**
+     * @expectedException \Martial\Transmission\API\TransmissionException
+     */
+    public function testFreeSpaceShouldThrowAnExceptionWhenTheServerReturnsAnError500()
+    {
+        $requestBody = '{"method":"free-space","arguments":{"path":"/var/lib/transmission-daemon/downloads"}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+
+        $this->rpcClient->freeSpace($this->sessionId, '/var/lib/transmission-daemon/downloads');
+    }
+
+    /**
+     * @expectedException \GuzzleHttp\Exception\ClientException
+     */
+    public function testFreeSpaceShouldThrowAnExceptionWhenTheRequestFails()
+    {
+        $requestBody = '{"method":"free-space","arguments":{"path":"/var/lib/transmission-daemon/downloads"}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow(m::mock('\GuzzleHttp\Exception\ClientException'));
+
+        $this->rpcClient->freeSpace($this->sessionId, '/var/lib/transmission-daemon/downloads');
+    }
+
+    public function testFreeSpaceShouldThrowAnExceptionWithAnInvalidSessionId()
+    {
+        $requestBody = '{"method":"free-space","arguments":{"path":"/var/lib/transmission-daemon/downloads"}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andThrow($this->generateCSRFException());
+
+        try {
+            $this->rpcClient->freeSpace($this->sessionId, '/var/lib/transmission-daemon/downloads');
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }

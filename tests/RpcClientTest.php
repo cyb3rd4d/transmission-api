@@ -504,6 +504,24 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         ], $this->rpcClient->torrentGet($this->sessionId, self::TORRENT_IDS, $fields));
     }
 
+    public function testTorrentGetAllWithSuccess()
+    {
+        $fields = ['name', 'totalSize'];
+        $requestBody = '{"method":"torrent-get","arguments":{"fields":["name","totalSize"]}}';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody(
+            '{"arguments":{"torrents":[{"name":"Fedora","totalSize":12345}]},"result":"success"}'
+        );
+
+        $this->assertSame([
+            ['name' => 'Fedora', 'totalSize' => 12345]
+        ], $this->rpcClient->torrentGet($this->sessionId, [], $fields));
+    }
+
     /**
      * @expectedException \Martial\Transmission\API\TransmissionException
      */

@@ -20,7 +20,7 @@ composer require 'martial/transmission-api:~1.0'
 ```php
 // Load composer autoloader
 
-$httpClient = new GuzzleHttp\Client(['base' => 'http://transmission-server:9091/transmission/rpc']);
+$httpClient = new GuzzleHttp\Client(['base_uri' => 'http://transmission-server:9091/transmission/rpc']);
 $api = new \Martial\Transmission\API\RpcClient($httpClient, 'rpc-username', 'rpc-password');
 ```
 

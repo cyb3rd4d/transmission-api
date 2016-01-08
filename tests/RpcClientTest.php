@@ -88,13 +88,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentStartShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-start","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentStart($this->sessionId, self::TORRENT_IDS);
+            $this->rpcClient->torrentStart($invalidSessionId, self::TORRENT_IDS);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -174,13 +175,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentStartNowShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-start-now","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentStartNow($this->sessionId, self::TORRENT_IDS);
+            $this->rpcClient->torrentStartNow($invalidSessionId, self::TORRENT_IDS);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -246,13 +248,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentStopShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-stop","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentStop($this->sessionId, self::TORRENT_IDS);
+            $this->rpcClient->torrentStop($invalidSessionId, self::TORRENT_IDS);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -318,13 +321,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentVerifyShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-verify","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentVerify($this->sessionId, self::TORRENT_IDS);
+            $this->rpcClient->torrentVerify($invalidSessionId, self::TORRENT_IDS);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -390,13 +394,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentReannounceShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-reannounce","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentReannounce($this->sessionId, self::TORRENT_IDS);
+            $this->rpcClient->torrentReannounce($invalidSessionId, self::TORRENT_IDS);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -468,13 +473,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $arguments = ['downloadLimit' => 200, 'peer-limit' => 10];
         $requestBody = '{"method":"torrent-set","arguments":{"ids":[42,1337],"downloadLimit":200,"peer-limit":10}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
+            $this->rpcClient->torrentSet($invalidSessionId, self::TORRENT_IDS, $arguments);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -549,13 +555,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $fields = ['creator', 'totalSize'];
         $requestBody = '{"method":"torrent-get","arguments":{"ids":[42,1337],"fields":["creator","totalSize"]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentGet($this->sessionId, self::TORRENT_IDS, $fields);
+            $this->rpcClient->torrentGet($invalidSessionId, self::TORRENT_IDS, $fields);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -640,13 +647,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $arguments = ['filename' => '/path/to/Fedora.torrent'];
         $requestBody = '{"method":"torrent-add","arguments":{"filename":"/path/to/Fedora.torrent"}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentAdd($this->sessionId, $arguments);
+            $this->rpcClient->torrentAdd($invalidSessionId, $arguments);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -725,13 +733,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentRemoveShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"torrent-remove","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentRemove($this->sessionId, self::TORRENT_IDS);
+            $this->rpcClient->torrentRemove($invalidSessionId, self::TORRENT_IDS);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -822,13 +831,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $location = '/path/to/file';
         $requestBody = '{"method":"torrent-set-location","arguments":{"ids":[42,1337],"location":"';
         $requestBody .= $location . '","move":false}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentSetLocation($this->sessionId, self::TORRENT_IDS, $location);
+            $this->rpcClient->torrentSetLocation($invalidSessionId, self::TORRENT_IDS, $location);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -932,6 +942,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $oldPath = 'torrent.iso';
         $newPath = 'new-torrent.iso';
+        $invalidSessionId = uniqid();
 
         $requestBody = sprintf(
             '{"method":"torrent-rename-path","arguments":{"ids":[42],"path":"%s","name":"%s"}}',
@@ -940,11 +951,11 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         );
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->torrentRenamePath($this->sessionId, 42, $oldPath, $newPath);
+            $this->rpcClient->torrentRenamePath($invalidSessionId, 42, $oldPath, $newPath);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1061,6 +1072,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $downloadDir = '/path/to/download-dir';
         $peerLimitGlobal = 42;
+        $invalidSessionId = uniqid();
 
         $sessionArgs = [
             'download-dir' => $downloadDir,
@@ -1074,11 +1086,11 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         );
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->sessionSet($this->sessionId, $sessionArgs);
+            $this->rpcClient->sessionSet($invalidSessionId, $sessionArgs);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1130,13 +1142,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testSessionGetShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"session-get"}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->sessionGet($this->sessionId);
+            $this->rpcClient->sessionGet($invalidSessionId);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1188,13 +1201,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testSessionStatsShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"session-stats"}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->sessionStats($this->sessionId);
+            $this->rpcClient->sessionStats($invalidSessionId);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1261,13 +1275,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testBlocklistUpdateShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"blocklist-update"}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->blocklistUpdate($this->sessionId);
+            $this->rpcClient->blocklistUpdate($invalidSessionId);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1330,13 +1345,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testPortTestShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"port-test"}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->portTest($this->sessionId);
+            $this->rpcClient->portTest($invalidSessionId);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1386,13 +1402,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testSessionCloseShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"session-close"}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->sessionClose($this->sessionId);
+            $this->rpcClient->sessionClose($invalidSessionId);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1442,13 +1459,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testQueueMoveTopShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"queue-move-top","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->queueMoveTop($this->sessionId, [42, 1337]);
+            $this->rpcClient->queueMoveTop($invalidSessionId, [42, 1337]);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1498,13 +1516,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testQueueMoveDownShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"queue-move-down","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->queueMoveDown($this->sessionId, [42, 1337]);
+            $this->rpcClient->queueMoveDown($invalidSessionId, [42, 1337]);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1554,13 +1573,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testQueueMoveUpShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"queue-move-up","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->queueMoveUp($this->sessionId, [42, 1337]);
+            $this->rpcClient->queueMoveUp($invalidSessionId, [42, 1337]);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1610,13 +1630,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testQueueMoveBottomShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"queue-move-bottom","arguments":{"ids":[42,1337]}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->queueMoveBottom($this->sessionId, [42, 1337]);
+            $this->rpcClient->queueMoveBottom($invalidSessionId, [42, 1337]);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1690,13 +1711,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testFreeSpaceShouldThrowAnExceptionWithAnInvalidSessionId()
     {
         $requestBody = '{"method":"free-space","arguments":{"path":"/var/lib/transmission-daemon/downloads"}}';
+        $invalidSessionId = uniqid();
 
         $this
-            ->sendRequest($requestBody)
+            ->sendRequest($requestBody, $invalidSessionId)
             ->andThrow($this->generateCSRFException());
 
         try {
-            $this->rpcClient->freeSpace($this->sessionId, '/var/lib/transmission-daemon/downloads');
+            $this->rpcClient->freeSpace($invalidSessionId, '/var/lib/transmission-daemon/downloads');
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
         }
@@ -1708,22 +1730,30 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     private function generateCSRFException()
     {
         $request = m::mock('\Psr\Http\Message\RequestInterface');
-        $response = m::mock('\Psr\Http\Message\ResponseInterface');
+        $response = m::mock('\Psr\Http\Message\MessageInterface, \Psr\Http\Message\ResponseInterface');
 
         $response
             ->shouldReceive('getStatusCode')
             ->once()
             ->andReturn(409);
 
+        $response
+            ->shouldReceive('getHeader')
+            ->once()
+            ->andReturn([$this->sessionId]);
+
         return new ClientException('', $request, $response);
     }
 
     /**
      * @param string $requestBody
+     * @param string $sessionId
      * @return m\Expectation
      */
-    private function sendRequest($requestBody)
+    private function sendRequest($requestBody, $sessionId = '')
     {
+        $sessionId = '' === $sessionId ? $this->sessionId : $sessionId;
+
         return $this
             ->guzzle
             ->shouldReceive('post')
@@ -1732,7 +1762,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
                 'body' => $requestBody,
                 'auth' => [self::RPC_USERNAME, self::RPC_PASSWORD],
                 'headers' => [
-                    'X-Transmission-Session-Id' => $this->sessionId
+                    'X-Transmission-Session-Id' => $sessionId
                 ]
             ]);
     }

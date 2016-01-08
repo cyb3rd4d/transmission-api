@@ -508,7 +508,9 @@ class RpcClient implements TransmissionAPI
         } catch (ClientException $e) {
             if (409 === $e->getCode()) {
                 $csrfException = new CSRFException('Invalid transmission session ID.', 0, $e);
-                $csrfException->setSessionId($sessionId);
+                $csrfException->setSessionId(
+                    $e->getResponse()->getHeader('X-Transmission-Session-Id')[0]
+                );
 
                 throw $csrfException;
             }

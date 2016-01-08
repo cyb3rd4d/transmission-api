@@ -204,7 +204,7 @@ class RpcClient implements TransmissionAPI
             $argumentsWithValues
         ));
 
-        return $response['arguments']['torrents'][0];
+        return $response['arguments']['torrent-added'];
     }
 
     /**

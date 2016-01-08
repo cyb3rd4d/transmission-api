@@ -597,7 +597,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->andReturn($this->guzzleResponse);
 
         $this->setResponseBody(
-            '{"arguments":{"torrents":[{"id":42,"name":"Fedora.iso","hashString":"' . $hashString . '"}]},"result":"success"}'
+            '{"arguments":{"torrent-added":{"id":42,"name":"Fedora.iso","hashString":"' . $hashString . '"}},"result":"success"}'
         );
 
         $this->assertSame(

@@ -2,7 +2,7 @@
 
 namespace Martial\Transmission\API;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use Martial\Transmission\API\Argument\Torrent\Add;
@@ -10,7 +10,7 @@ use Martial\Transmission\API\Argument\Torrent\Add;
 class RpcClient implements TransmissionAPI
 {
     /**
-     * @var Client
+     * @var ClientInterface
      */
     private $httpClient;
 
@@ -27,11 +27,11 @@ class RpcClient implements TransmissionAPI
     /**
      * RpcClient constructor.
      *
-     * @param Client $httpClient
+     * @param ClientInterface $httpClient
      * @param string $rpcUsername
      * @param string $rpcPassword
      */
-    public function __construct(Client $httpClient, $rpcUsername, $rpcPassword)
+    public function __construct(ClientInterface $httpClient, $rpcUsername, $rpcPassword)
     {
         $this->httpClient = $httpClient;
         $this->rpcUsername = $rpcUsername;
@@ -501,7 +501,7 @@ class RpcClient implements TransmissionAPI
         try {
             $response = $this
                 ->httpClient
-                ->post('', [
+                ->request('POST', '', [
                     'body' => $requestBody,
                     'auth' => [$this->rpcUsername, $this->rpcPassword],
                     'headers' => [

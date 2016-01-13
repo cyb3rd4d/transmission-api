@@ -36,7 +36,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->guzzle = m::mock('\GuzzleHttp\Client');
+        $this->guzzle = m::mock('\GuzzleHttp\ClientInterface');
         $this->guzzleResponse = m::mock('\Psr\Http\Message\ResponseInterface');
         $this->sessionId = uniqid();
         $this->rpcClient = new RpcClient($this->guzzle, self::RPC_USERNAME, self::RPC_PASSWORD);
@@ -1774,13 +1774,15 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         return $this
             ->guzzle
-            ->shouldReceive('post')
+            ->shouldReceive('request')
             ->once()
-            ->with('', [
-                'body' => $requestBody,
-                'auth' => [self::RPC_USERNAME, self::RPC_PASSWORD],
-                'headers' => [
-                    'X-Transmission-Session-Id' => $sessionId
+            ->withArgs([
+                'POST',
+                '',
+                [
+                    'body' => $requestBody,
+                    'auth' => [self::RPC_USERNAME, self::RPC_PASSWORD],
+                    'headers' => ['X-Transmission-Session-Id' => $sessionId]
                 ]
             ]);
     }

@@ -2,6 +2,8 @@
 
 namespace Martial\Transmission\API;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * The interface of the Transmission PHP client. Its behavior is as close to the original RPC API as possible. So, for more information about methods or arguments,
  * read the official API documentation.
@@ -308,4 +310,11 @@ interface TransmissionAPI
      * @throws CSRFException
      */
     public function freeSpace($sessionId, $path);
+
+    /**
+     * Injects a logger.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger);
 }

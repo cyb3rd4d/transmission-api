@@ -30,6 +30,11 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     private $guzzleResponse;
 
     /**
+     * @var m\MockInterface
+     */
+    private $logger;
+
+    /**
      * @var string
      */
     private $sessionId;
@@ -38,8 +43,10 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $this->guzzle = m::mock('\GuzzleHttp\ClientInterface');
         $this->guzzleResponse = m::mock('\Psr\Http\Message\ResponseInterface');
+        $this->logger = m::mock('\Psr\Log\LoggerInterface');
         $this->sessionId = uniqid();
         $this->rpcClient = new RpcClient($this->guzzle, self::RPC_USERNAME, self::RPC_PASSWORD);
+        $this->rpcClient->setLogger($this->logger);
     }
 
     public function testTorrentStartWithSuccess()
@@ -61,10 +68,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentStartShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"torrent-start","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentStart($this->sessionId, self::TORRENT_IDS);
     }
@@ -134,10 +143,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentStartNowShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"torrent-start-now","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentStartNow($this->sessionId, self::TORRENT_IDS);
     }
@@ -207,10 +218,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentStopShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"torrent-stop","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentStop($this->sessionId, self::TORRENT_IDS);
     }
@@ -280,10 +293,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentVerifyShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"torrent-verify","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentVerify($this->sessionId, self::TORRENT_IDS);
     }
@@ -353,10 +368,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentReannounceShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"torrent-reannounce","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentReannounce($this->sessionId, self::TORRENT_IDS);
     }
@@ -429,10 +446,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $arguments = ['downloadLimit' => 200, 'peer-limit' => 10];
         $requestBody = '{"method":"torrent-set","arguments":{"ids":[42,1337],"downloadLimit":200,"peer-limit":10}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentSet($this->sessionId, self::TORRENT_IDS, $arguments);
     }
@@ -529,10 +548,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $fields = ['name', 'totalSize'];
         $requestBody = '{"method":"torrent-get","arguments":{"ids":[42,1337],"fields":["name","totalSize"]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentGet($this->sessionId, self::TORRENT_IDS, $fields);
     }
@@ -613,10 +634,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $arguments = ['filename' => '/path/to/Fedora.torrent'];
         $requestBody = '{"method":"torrent-add","arguments":{"filename":"/path/to/Fedora.torrent"}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentAdd($this->sessionId, $arguments);
     }
@@ -710,10 +733,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testTorrentRemoveShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"torrent-remove","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentRemove($this->sessionId, self::TORRENT_IDS);
     }
@@ -802,10 +827,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         $location = '/path/to/file';
         $requestBody = '{"method":"torrent-set-location","arguments":{"ids":[42,1337],"location":"';
         $requestBody .= $location . '","move":false}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentSetLocation($this->sessionId, self::TORRENT_IDS, $location);
     }
@@ -921,6 +948,8 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $oldPath = 'torrent.iso';
         $newPath = 'new-torrent.iso';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $requestBody = sprintf(
             '{"method":"torrent-rename-path","arguments":{"ids":[42],"path":"%s","name":"%s"}}',
@@ -930,7 +959,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->torrentRenamePath($this->sessionId, 42, $oldPath, $newPath);
     }
@@ -1041,6 +1070,8 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $downloadDir = '/path/to/download-dir';
         $peerLimitGlobal = 42;
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $sessionArgs = [
             'download-dir' => $downloadDir,
@@ -1055,7 +1086,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->sessionSet($this->sessionId, $sessionArgs);
     }
@@ -1135,10 +1166,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testSessionGetShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"session-get"}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->sessionGet($this->sessionId);
     }
@@ -1194,10 +1227,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testSessionStatsShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"session-stats"}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->sessionStats($this->sessionId);
     }
@@ -1268,10 +1303,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testBlocklistUpdateShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"blocklist-update"}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->blocklistUpdate($this->sessionId);
     }
@@ -1338,10 +1375,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testPortTestShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"port-test"}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->portTest($this->sessionId);
     }
@@ -1395,10 +1434,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testSessionCloseShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"session-close"}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->sessionClose($this->sessionId);
     }
@@ -1452,10 +1493,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testQueueMoveTopShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"queue-move-top","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->queueMoveTop($this->sessionId, [42, 1337]);
     }
@@ -1509,10 +1552,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testQueueMoveDownShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"queue-move-down","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->queueMoveDown($this->sessionId, [42, 1337]);
     }
@@ -1566,10 +1611,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testQueueMoveUpShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"queue-move-up","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->queueMoveUp($this->sessionId, [42, 1337]);
     }
@@ -1623,10 +1670,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testQueueMoveBottomShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"queue-move-bottom","arguments":{"ids":[42,1337]}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->queueMoveBottom($this->sessionId, [42, 1337]);
     }
@@ -1704,10 +1753,12 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testFreeSpaceShouldThrowAnExceptionWhenTheServerReturnsAnError500()
     {
         $requestBody = '{"method":"free-space","arguments":{"path":"/var/lib/transmission-daemon/downloads"}}';
+        $requestException = m::mock('\GuzzleHttp\Exception\RequestException');
+        $this->logRequestError($requestException);
 
         $this
             ->sendRequest($requestBody)
-            ->andThrow(m::mock('\GuzzleHttp\Exception\RequestException'));
+            ->andThrow($requestException);
 
         $this->rpcClient->freeSpace($this->sessionId, '/var/lib/transmission-daemon/downloads');
     }
@@ -1760,6 +1811,14 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->once()
             ->andReturn([$this->sessionId]);
 
+        $this
+            ->logger
+            ->shouldReceive('info')
+            ->once()
+            ->withArgs(['Invalid Transmission session ID. A new ID has been generated: {session_id}', [
+                'session_id' => $this->sessionId
+            ]]);
+
         return new ClientException('', $request, $response);
     }
 
@@ -1770,6 +1829,8 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
      */
     private function sendRequest($requestBody, $sessionId = '')
     {
+        $this->debugRequest($requestBody);
+
         $sessionId = '' === $sessionId ? $this->sessionId : $sessionId;
 
         return $this
@@ -1792,11 +1853,46 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
      */
     private function setResponseBody($responseBody)
     {
+        $responseToArray = json_decode($responseBody, true);
+
+        if ($responseToArray['result'] !== 'success') {
+            $this
+                ->logger
+                ->shouldReceive('error')
+                ->once();
+        }
+
         $this
             ->guzzleResponse
             ->shouldReceive('getBody')
             ->once()
             ->andReturn($responseBody);
+    }
+
+    /**
+     * @param string $requestBody
+     */
+    private function debugRequest($requestBody)
+    {
+        $this
+            ->logger
+            ->shouldReceive('debug')
+            ->once()
+            ->withArgs([
+                'Request {request} sent to the Transmission RPC API.',
+                ['request' => $requestBody]
+            ]);
+    }
+
+    private function logRequestError($requestException)
+    {
+        $this
+            ->logger
+            ->shouldReceive('error')
+            ->once()
+            ->withArgs(['The Transmission RPC API returned a 500 error.', [
+                'exception' => $requestException
+            ]]);
     }
 
     /**

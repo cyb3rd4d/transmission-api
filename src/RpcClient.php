@@ -6,6 +6,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use Martial\Transmission\API\Argument\Torrent\Add;
+use Psr\Log\LoggerInterface;
 
 class RpcClient implements TransmissionAPI
 {
@@ -25,6 +26,11 @@ class RpcClient implements TransmissionAPI
     private $rpcPassword;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * RpcClient constructor.
      *
      * @param ClientInterface $httpClient
@@ -36,6 +42,16 @@ class RpcClient implements TransmissionAPI
         $this->httpClient = $httpClient;
         $this->rpcUsername = $rpcUsername;
         $this->rpcPassword = $rpcPassword;
+    }
+
+    /**
+     * Injects a logger.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -499,6 +515,8 @@ class RpcClient implements TransmissionAPI
     private function sendRequest($sessionId, $requestBody)
     {
         try {
+            $this->logger->debug('Request {request} sent to the Transmission RPC API.', ['request' => $requestBody]);
+
             $response = $this
                 ->httpClient
                 ->request('POST', '', [
@@ -511,15 +529,24 @@ class RpcClient implements TransmissionAPI
         } catch (ClientException $e) {
             if (409 === $e->getCode()) {
                 $csrfException = new CSRFException('Invalid transmission session ID.', 0, $e);
+
                 $csrfException->setSessionId(
                     $e->getResponse()->getHeader('X-Transmission-Session-Id')[0]
                 );
+
+                $this->logger->info('Invalid Transmission session ID. A new ID has been generated: {session_id}', [
+                    'session_id' => $csrfException->getSessionId()
+                ]);
 
                 throw $csrfException;
             }
 
             throw $e;
         } catch (RequestException $e) {
+            $this->logger->error('The Transmission RPC API returned a 500 error.', [
+                'exception' => $e
+            ]);
+
             throw new TransmissionException('Transmission request error.', 0, $e);
         }
 
@@ -528,6 +555,14 @@ class RpcClient implements TransmissionAPI
         if ($responseBody['result'] !== 'success') {
             $e = new TransmissionException('The Transmission RPC API returned an error: ' . $responseBody['result']);
             $e->setResult($responseBody['result']);
+
+            $this->logger->error(
+                'The Transmission RPC API returned an error with this request: {request}. The response: {response}',
+                [
+                    'request' => $requestBody,
+                    'response' => $responseBody['result'],
+                    'exception' => $e
+                ]);
 
             throw $e;
         }

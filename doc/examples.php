@@ -10,6 +10,11 @@ $newTorrentFile = '/tmp/debian-8.2.0-amd64-CD-1.iso.torrent';
 $guzzle = new GuzzleHttp\Client(['base_uri' => $rpcUri]);
 $api = new \Martial\Transmission\API\RpcClient($guzzle, $rpcUsername, $rpcPassword);
 
+$logger = new \Monolog\Logger('transmission');
+$logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
+
+$api->setLogger($logger);
+
 /**
  * @param array $torrentList
  */

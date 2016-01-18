@@ -24,6 +24,17 @@ $httpClient = new GuzzleHttp\Client(['base_uri' => 'http://transmission-server:9
 $api = new \Martial\Transmission\API\RpcClient($httpClient, 'rpc-username', 'rpc-password');
 ```
 
+### Show me what you're doing
+
+You may want to use a logger:
+
+```php
+$logger = new \Monolog\Logger('transmission');
+$logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
+
+$api->setLogger($logger);
+```
+
 ### Session ID
 
 You must provide a session ID as first parameter of all API methods. This ID can be retrieved by calling any of

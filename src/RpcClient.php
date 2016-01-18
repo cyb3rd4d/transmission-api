@@ -515,7 +515,11 @@ class RpcClient implements TransmissionAPI
     private function sendRequest($sessionId, $requestBody)
     {
         try {
-            $this->logger->debug('Request {request} sent to the Transmission RPC API.', ['request' => $requestBody]);
+            if (!is_null($this->logger)) {
+                $this->logger->debug('Request {request} sent to the Transmission RPC API.', [
+                        'request' => $requestBody
+                ]);
+            }
 
             $response = $this
                 ->httpClient
@@ -534,18 +538,22 @@ class RpcClient implements TransmissionAPI
                     $e->getResponse()->getHeader('X-Transmission-Session-Id')[0]
                 );
 
-                $this->logger->info('Invalid Transmission session ID. A new ID has been generated: {session_id}', [
-                    'session_id' => $csrfException->getSessionId()
-                ]);
+                if (!is_null($this->logger)) {
+                    $this->logger->info('Invalid Transmission session ID. A new ID has been generated: {session_id}', [
+                        'session_id' => $csrfException->getSessionId()
+                    ]);
+                }
 
                 throw $csrfException;
             }
 
             throw $e;
         } catch (RequestException $e) {
-            $this->logger->error('The Transmission RPC API returned a 500 error.', [
-                'exception' => $e
-            ]);
+            if (!is_null($this->logger)) {
+                $this->logger->error('The Transmission RPC API returned a 500 error.', [
+                    'exception' => $e
+                ]);
+            }
 
             throw new TransmissionException('Transmission request error.', 0, $e);
         }
@@ -556,13 +564,16 @@ class RpcClient implements TransmissionAPI
             $e = new TransmissionException('The Transmission RPC API returned an error: ' . $responseBody['result']);
             $e->setResult($responseBody['result']);
 
-            $this->logger->error(
-                'The Transmission RPC API returned an error with this request: {request}. The response: {response}',
-                [
-                    'request' => $requestBody,
-                    'response' => $responseBody['result'],
-                    'exception' => $e
-                ]);
+            if (!is_null($this->logger)) {
+                $this->logger->error(
+                    'The Transmission RPC API returned an error with this request: {request}. The response: {response}',
+                    [
+                        'request' => $requestBody,
+                        'response' => $responseBody['result'],
+                        'exception' => $e
+                    ]
+                );
+            }
 
             throw $e;
         }

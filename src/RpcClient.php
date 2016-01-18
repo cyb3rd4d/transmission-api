@@ -516,7 +516,7 @@ class RpcClient implements TransmissionAPI
     {
         try {
             if (!is_null($this->logger)) {
-                $this->logger->debug('Request {request} sent to the Transmission RPC API.', [
+                $this->logger->debug('Request sent to the Transmission RPC API.', [
                         'request' => $requestBody
                 ]);
             }
@@ -539,7 +539,7 @@ class RpcClient implements TransmissionAPI
                 );
 
                 if (!is_null($this->logger)) {
-                    $this->logger->info('Invalid Transmission session ID. A new ID has been generated: {session_id}', [
+                    $this->logger->info('Invalid Transmission session ID. A new ID has been generated.', [
                         'session_id' => $csrfException->getSessionId()
                     ]);
                 }
@@ -566,7 +566,7 @@ class RpcClient implements TransmissionAPI
 
             if (!is_null($this->logger)) {
                 $this->logger->error(
-                    'The Transmission RPC API returned an error with this request: {request}. The response: {response}',
+                    'The Transmission RPC API returned an error with this request.',
                     [
                         'request' => $requestBody,
                         'response' => $responseBody['result'],

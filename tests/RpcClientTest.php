@@ -1815,7 +1815,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->logger
             ->shouldReceive('info')
             ->once()
-            ->withArgs(['Invalid Transmission session ID. A new ID has been generated: {session_id}', [
+            ->withArgs(['Invalid Transmission session ID. A new ID has been generated.', [
                 'session_id' => $this->sessionId
             ]]);
 
@@ -1879,7 +1879,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->shouldReceive('debug')
             ->once()
             ->withArgs([
-                'Request {request} sent to the Transmission RPC API.',
+                'Request sent to the Transmission RPC API.',
                 ['request' => $requestBody]
             ]);
     }

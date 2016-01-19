@@ -1,5 +1,7 @@
 # PHP client for the Debian Transmission RPC API
 
+![Build Status](http://ci.martialgeek.fr/buildStatus/icon?job=transmission-client)
+
 ## Purpose
 
 I wrote this client because of a lack of features with other PHP clients. This implementation is full, tested

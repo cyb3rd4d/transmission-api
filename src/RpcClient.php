@@ -493,6 +493,10 @@ class RpcClient implements TransmissionAPI
         $body->method = $method;
 
         if (!empty($arguments)) {
+            if (isset($arguments['ids']) && is_array($arguments['ids'])) {
+                $arguments['ids'] = array_values($arguments['ids']);
+            }
+
             $body->arguments = new \StdClass();
 
             foreach ($arguments as $argument => $value) {

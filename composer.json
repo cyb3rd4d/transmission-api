@@ -26,5 +26,8 @@
     },
     "config": {
         "bin-dir": "bin"
+    },
+    "suggest": {
+        "monolog/monolog": "Inject Monolog to enhance your logging strategy"
     }
 }

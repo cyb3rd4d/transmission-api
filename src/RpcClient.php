@@ -477,7 +477,9 @@ class RpcClient implements TransmissionAPI
      */
     public function freeSpace($sessionId, $path)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('free-space', ['path' => $path]));
+        $response = $this->sendRequest($sessionId, $this->buildRequestBody('free-space', ['path' => $path]));
+
+        return $response['arguments'];
     }
 
     /**

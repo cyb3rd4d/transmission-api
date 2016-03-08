@@ -1713,14 +1713,24 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     public function testFreeSpaceWithSuccess()
     {
         $requestBody = '{"method":"free-space","arguments":{"path":"/var/lib/transmission-daemon/downloads"}}';
+        $path = '/var/lib/transmission-daemon/downloads';
+        $size = 37548523520;
 
         $this
             ->sendRequest($requestBody)
             ->andReturn($this->guzzleResponse);
 
-        $jsonResponse = '{"arguments":{"path":"/var/lib/transmission-daemon/downloads","size-bytes":37548523520},"result":"success"}';
+        $jsonResponse = sprintf(
+            '{"arguments":{"path":"%s","size-bytes":%d},"result":"success"}',
+            $path,
+            $size
+        );
+
         $this->setResponseBody($jsonResponse);
-        $this->rpcClient->freeSpace($this->sessionId, '/var/lib/transmission-daemon/downloads');
+        $result = $this->rpcClient->freeSpace($this->sessionId, $path);
+        $this->assertInternalType('array', $result);
+        $this->assertSame($path, $result['path']);
+        $this->assertSame($size, $result['size-bytes']);
     }
 
     public function testFreeSpaceShouldThrowAnExceptionWhenThePathIsInvalid()

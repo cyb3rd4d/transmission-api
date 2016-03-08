@@ -215,10 +215,24 @@ class RpcClient implements TransmissionAPI
             ));
         }
 
-        $response = $this->sendRequest($sessionId, $this->buildRequestBody(
-            'torrent-add',
-            $argumentsWithValues
-        ));
+        try {
+            $response = $this->sendRequest($sessionId, $this->buildRequestBody(
+                'torrent-add',
+                $argumentsWithValues
+            ));
+        } catch (TransmissionException $e) {
+            if ($e->getResult() === 'duplicate torrent') {
+                $responseArguments = $e->getArguments();
+                $duplicateTorrentException = new DuplicateTorrentException();
+                $duplicateTorrentException->setTorrentId($responseArguments['torrent-duplicate']['id']);
+                $duplicateTorrentException->setTorrentName($responseArguments['torrent-duplicate']['name']);
+                $duplicateTorrentException->setTorrentHashString($responseArguments['torrent-duplicate']['hashString']);
+
+                throw $duplicateTorrentException;
+            }
+
+            throw $e;
+        }
 
         return $response['arguments']['torrent-added'];
     }
@@ -569,6 +583,7 @@ class RpcClient implements TransmissionAPI
         if ($responseBody['result'] !== 'success') {
             $e = new TransmissionException('The Transmission RPC API returned an error: ' . $responseBody['result']);
             $e->setResult($responseBody['result']);
+            $e->setArguments($responseBody['arguments']);
 
             if (!is_null($this->logger)) {
                 $this->logger->error(

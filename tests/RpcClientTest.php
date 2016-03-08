@@ -4,6 +4,7 @@ namespace Martial\Transmission\Api\Tests;
 
 use GuzzleHttp\Exception\ClientException;
 use Martial\Transmission\API\CSRFException;
+use Martial\Transmission\API\DuplicateTorrentException;
 use Martial\Transmission\API\RpcClient;
 use Martial\Transmission\API\TransmissionException;
 use Mockery as m;
@@ -698,6 +699,40 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             $this->rpcClient->torrentAdd($invalidSessionId, $arguments);
         } catch (CSRFException $e) {
             $this->assertSame($this->sessionId, $e->getSessionId());
+        }
+    }
+
+    public function testTorrentAddShouldThrowAnExceptionWithDuplicateTorrent()
+    {
+        $success = false;
+        $arguments = ['filename' => '/path/to/Fedora.torrent'];
+        $requestBody = '{"method":"torrent-add","arguments":{"filename":"/path/to/Fedora.torrent"}}';
+        $hashString = md5('Fedora.iso');
+        $torrentId = 42;
+        $torrentName = 'Fedora.iso';
+
+        $this
+            ->sendRequest($requestBody)
+            ->andReturn($this->guzzleResponse);
+
+        $this->setResponseBody(sprintf(
+            '{"arguments":{"torrent-duplicate":{"id":%d,"name":"%s","hashString":"%s"}},"result":"duplicate torrent"}',
+            $torrentId,
+            $torrentName,
+            $hashString
+        ));
+
+        try {
+            $this->rpcClient->torrentAdd($this->sessionId, $arguments);
+        } catch (DuplicateTorrentException $e) {
+            $this->assertSame($torrentId, $e->getTorrentId());
+            $this->assertSame($torrentName, $e->getTorrentName());
+            $this->assertSame($hashString, $e->getTorrentHashString());
+            $success = true;
+        }
+
+        if (!$success) {
+            $this->fail('DuplicateTorrentException was not thrown.');
         }
     }
 

@@ -10,6 +10,11 @@ class TransmissionException extends \Exception
     private $result;
 
     /**
+     * @var array
+     */
+    private $arguments;
+
+    /**
      * @return string
      */
     public function getResult()
@@ -23,5 +28,21 @@ class TransmissionException extends \Exception
     public function setResult($result)
     {
         $this->result = $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getArguments()
+    {
+        return $this->arguments;
+    }
+
+    /**
+     * @param array $arguments
+     */
+    public function setArguments(array $arguments)
+    {
+        $this->arguments = $arguments;
     }
 }

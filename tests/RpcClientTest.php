@@ -716,7 +716,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
             ->andReturn($this->guzzleResponse);
 
         $this->setResponseBody(sprintf(
-            '{"arguments":{"torrent-duplicate":{"id":%d,"name":"%s","hashString":"%s"}},"result":"duplicate torrent"}',
+            '{"arguments":{"torrent-duplicate":{"id":%d,"name":"%s","hashString":"%s"}},"result":"success"}',
             $torrentId,
             $torrentName,
             $hashString

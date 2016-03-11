@@ -530,6 +530,7 @@ class RpcClient implements TransmissionAPI
      * @param string $requestBody
      * @return array
      * @throws CSRFException
+     * @throws DuplicateTorrentException
      * @throws TransmissionException
      */
     private function sendRequest($sessionId, $requestBody)
@@ -595,6 +596,16 @@ class RpcClient implements TransmissionAPI
                     ]
                 );
             }
+
+            throw $e;
+        }
+
+        if (isset($responseBody['arguments']['torrent-duplicate'])) {
+            $torrentDuplicateData = $responseBody['arguments']['torrent-duplicate'];
+            $e = new DuplicateTorrentException();
+            $e->setTorrentId($torrentDuplicateData['id']);
+            $e->setTorrentName($torrentDuplicateData['name']);
+            $e->setTorrentHashString($torrentDuplicateData['hashString']);
 
             throw $e;
         }

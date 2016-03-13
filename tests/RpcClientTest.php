@@ -1864,9 +1864,9 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
 
         $this
             ->logger
-            ->shouldReceive('info')
+            ->shouldReceive('log')
             ->once()
-            ->withArgs(['Invalid Transmission session ID. A new ID has been generated.', [
+            ->withArgs(['info', 'Invalid Transmission session ID. A new ID has been generated.', [
                 'session_id' => $this->sessionId
             ]]);
 
@@ -1909,7 +1909,7 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
         if ($responseToArray['result'] !== 'success') {
             $this
                 ->logger
-                ->shouldReceive('error')
+                ->shouldReceive('log')
                 ->once();
         }
 
@@ -1927,9 +1927,10 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $this
             ->logger
-            ->shouldReceive('debug')
+            ->shouldReceive('log')
             ->once()
             ->withArgs([
+                'debug',
                 'Request sent to the Transmission RPC API.',
                 ['request' => $requestBody]
             ]);
@@ -1939,9 +1940,9 @@ class RpcClientTest extends \PHPUnit_Framework_TestCase
     {
         $this
             ->logger
-            ->shouldReceive('error')
+            ->shouldReceive('log')
             ->once()
-            ->withArgs(['The Transmission RPC API returned a 500 error.', [
+            ->withArgs(['error', 'The Transmission RPC API returned a 500 error.', [
                 'exception' => $requestException
             ]]);
     }

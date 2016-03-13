@@ -33,10 +33,10 @@ class TorrentIdList
     }
 
     /**
-     * @return \SplFixedArray
+     * @return array
      */
     public function getList()
     {
-        return $this->list;
+        return $this->list->toArray();
     }
 }

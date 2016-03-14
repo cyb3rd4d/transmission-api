@@ -34,7 +34,7 @@ You may want to use a logger:
 $logger = new \Monolog\Logger('transmission');
 $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
 
-$api = new \Martial\Transmission\API\RpcClient($httpClient, 'rpc-username', 'rpc-password');
+$api = new \Martial\Transmission\API\RpcClient($httpClient, 'rpc-username', 'rpc-password', $logger);
 ```
 
 ### Session ID

@@ -47,6 +47,8 @@ $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
 $api->setLogger($logger);
 ```
 
+Now:
+
 ```php
 $logger = new \Monolog\Logger('transmission');
 $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));

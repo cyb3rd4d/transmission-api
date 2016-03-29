@@ -36,146 +36,76 @@ class RpcClient implements TransmissionAPI
      * @param ClientInterface $httpClient
      * @param string $rpcUsername
      * @param string $rpcPassword
+     * @param LoggerInterface $logger
      */
-    public function __construct(ClientInterface $httpClient, $rpcUsername, $rpcPassword)
+    public function __construct(ClientInterface $httpClient, $rpcUsername, $rpcPassword, LoggerInterface $logger = null)
     {
         $this->httpClient = $httpClient;
         $this->rpcUsername = $rpcUsername;
         $this->rpcPassword = $rpcPassword;
-    }
-
-    /**
-     * Injects a logger.
-     *
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
         $this->logger = $logger;
     }
 
     /**
-     * Starts the given torrents (all the torrents if no IDs are provided).
-     *
-     * @param string $sessionId
-     * @param int[] $ids
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function torrentStart($sessionId, array $ids)
+    public function torrentStart($sessionId, TorrentIdList $ids)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-start', ['ids' => $ids]));
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-start', ['ids' => $ids->getList()]));
     }
 
     /**
-     * Starts now the given torrents (all the torrents if no IDs are provided).
-     *
-     * @param string $sessionId
-     * @param int[] $ids
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function torrentStartNow($sessionId, array $ids)
+    public function torrentStartNow($sessionId, TorrentIdList $ids)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-start-now', ['ids' => $ids]));
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-start-now', ['ids' => $ids->getList()]));
     }
 
     /**
-     * Stops the given torrents (all the torrents if no IDs are provided).
-     *
-     * @param string $sessionId
-     * @param int[] $ids
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function torrentStop($sessionId, array $ids)
+    public function torrentStop($sessionId, TorrentIdList $ids)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-stop', ['ids' => $ids]));
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-stop', ['ids' => $ids->getList()]));
     }
 
     /**
-     * Verifies the given torrents (all the torrents if no IDs are provided).
-     *
-     * @param string $sessionId
-     * @param int[] $ids
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function torrentVerify($sessionId, array $ids)
+    public function torrentVerify($sessionId, TorrentIdList $ids)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-verify', ['ids' => $ids]));
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-verify', ['ids' => $ids->getList()]));
     }
 
     /**
-     * Reannonces the given torrents (all the torrents if no IDs are provided).
-     *
-     * @param string $sessionId
-     * @param int[] $ids
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function torrentReannounce($sessionId, array $ids)
+    public function torrentReannounce($sessionId, TorrentIdList $ids)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-reannounce', ['ids' => $ids]));
+        $this->sendRequest($sessionId, $this->buildRequestBody('torrent-reannounce', ['ids' => $ids->getList()]));
     }
 
     /**
-     * Applies the given arguments with their values to the given torrent IDs.
-     * The available methods are defined in the constants of the interface Martial\Transmission\Argument\Torrent\Set.
-     * Each of them has a block of documentation to know the accepted value type.
-     * Using an empty array for "files-wanted", "files-unwanted", "priority-high", "priority-low", or
-     * "priority-normal" is shorthand for saying "all files". Ex:
-     * <code>
-     * $client->torrentSet('iefjzo234fez', [42, 1337], ['downloadLimit' => 200]);
-     * </code>
-     *
-     * @param string $sessionId
-     * @param array $ids
-     * @param array $argumentsWithValues
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function torrentSet($sessionId, array $ids, array $argumentsWithValues)
+    public function torrentSet($sessionId, TorrentIdList $ids, array $argumentsWithValues)
     {
         $this->sendRequest($sessionId, $this->buildRequestBody(
             'torrent-set',
-            array_merge(['ids' => $ids], $argumentsWithValues)
+            array_merge(['ids' => $ids->getList()], $argumentsWithValues)
         ));
     }
 
     /**
-     * Retrieves the data of the given fields for the given torrent IDs.
-     * The available fields are defined in the constants of the interface \Martial\Transmission\Argument\Torrent\Get.
-     * All torrents are used if the "ids" array is empty.
-     * Returns an array of torrents data. Ex:
-     * <code>
-     * [
-     *     [
-     *         'id' => 42,
-     *         'name' => 'Fedora x86_64 DVD',
-     *         'totalSize' => 34983493932,
-     *     ],
-     *     [
-     *         'id' => 1337,
-     *         'name' => 'Ubuntu x86_64 DVD',
-     *         'totalSize' => 9923890123,
-     *     ],
-     * ];
-     * </code>
-     *
-     * @param string $sessionId
-     * @param array $ids
-     * @param array $fields
-     * @return array
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function torrentGet($sessionId, array $ids, array $fields = [])
+    public function torrentGet($sessionId, TorrentIdList $ids, array $fields = [])
     {
-        if (empty($ids)) {
+        if (empty($ids->getList())) {
             $arguments = ['fields' => $fields];
         } else {
-            $arguments = array_merge(['ids' => $ids], ['fields' => $fields]);
+            $arguments = array_merge(['ids' => $ids->getList()], ['fields' => $fields]);
         }
 
         $response = $this->sendRequest($sessionId, $this->buildRequestBody('torrent-get', $arguments));
@@ -184,25 +114,7 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Adds a torrent to the download queue.
-     * The available arguments are defined in the constants of the interface \Martial\Transmission\Argument\Torrent\Add.
-     * You MUST provide the filename or the metainfo argument in order to add a torrent.
-     * Returns an array with the torrent ID, name and hashString fields. Ex:
-     * <code>
-     * [
-     *     'id' => 42,
-     *     'name' => 'Fedora x86_64 DVD',
-     *     'hashString' => 'fb7bd58d695990c5a8cb4ac04de9a34ad27a5259'
-     * ]
-     * </code>
-     *
-     * @param string $sessionId
-     * @param array $argumentsWithValues
-     * @return array
-     * @throws DuplicateTorrentException
-     * @throws TransmissionException
-     * @throws CSRFException
-     * @throws MissingArgumentException
+     * @inheritdoc
      */
     public function torrentAdd($sessionId, array $argumentsWithValues)
     {
@@ -215,41 +127,20 @@ class RpcClient implements TransmissionAPI
             ));
         }
 
-        try {
-            $response = $this->sendRequest($sessionId, $this->buildRequestBody(
-                'torrent-add',
-                $argumentsWithValues
-            ));
-        } catch (TransmissionException $e) {
-            if ($e->getResult() === 'duplicate torrent') {
-                $responseArguments = $e->getArguments();
-                $duplicateTorrentException = new DuplicateTorrentException();
-                $duplicateTorrentException->setTorrentId($responseArguments['torrent-duplicate']['id']);
-                $duplicateTorrentException->setTorrentName($responseArguments['torrent-duplicate']['name']);
-                $duplicateTorrentException->setTorrentHashString($responseArguments['torrent-duplicate']['hashString']);
-
-                throw $duplicateTorrentException;
-            }
-
-            throw $e;
-        }
+        $response = $this->sendRequest($sessionId, $this->buildRequestBody(
+            'torrent-add',
+            $argumentsWithValues
+        ));
 
         return $response['arguments']['torrent-added'];
     }
 
     /**
-     * Removes the given torrent IDs from the download queue.
-     * All torrents are used if the "ids" array is empty.
-     *
-     * @param string $sessionId
-     * @param array $ids
-     * @param bool $deleteLocalData
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function torrentRemove($sessionId, array $ids, $deleteLocalData = false)
+    public function torrentRemove($sessionId, TorrentIdList $ids, $deleteLocalData = false)
     {
-        $arguments = ['ids' => $ids];
+        $arguments = ['ids' => $ids->getList()];
 
         if ($deleteLocalData) {
             $arguments['delete-local-data'] = true;
@@ -259,45 +150,19 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Moves the given torrent IDs.
-     * If $move is set to true, move from previous location. Otherwise, search "location" for files.
-     * All torrents are used if the "ids" array is empty.
-     *
-     * @param string $sessionId
-     * @param array $ids
-     * @param string $location
-     * @param bool $move
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function torrentSetLocation($sessionId, array $ids, $location, $move = false)
+    public function torrentSetLocation($sessionId, TorrentIdList $ids, $location, $move = false)
     {
         $this->sendRequest($sessionId, $this->buildRequestBody('torrent-set-location', [
-            'ids' => $ids,
+            'ids' => $ids->getList(),
             'location' => $location,
             'move' => $move
         ]));
     }
 
     /**
-     * Renames a torrent path.
-     * The old and new paths are relative to the download directory of your Transmission settings.
-     * Returns an array of torrent data. Ex:
-     * <code>
-     * [
-     *     'id' => 42,
-     *     'name' => 'Fedora x86_64 DVD',
-     *     'path' => '/path/to/torrent'
-     * ]
-     * </code>
-     *
-     * @param string $sessionId
-     * @param int $id
-     * @param string $oldPath
-     * @param string $newPath
-     * @return array
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
     public function torrentRenamePath($sessionId, $id, $oldPath, $newPath)
     {
@@ -311,14 +176,7 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Defines session settings.
-     * The settings are listed in the constants of the interface \Martial\Transmission\Argument\Session\Set.
-     * Each of them has a block of documentation to know the accepted value type.
-     *
-     * @param string $sessionId
-     * @param array $argumentsWithValues
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
     public function sessionSet($sessionId, array $argumentsWithValues)
     {
@@ -343,13 +201,7 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Retrieves the session settings.
-     * Returns an array of all the settings listed in the interface \Martial\Transmission\Argument\Session\Get.
-     *
-     * @param string $sessionId
-     * @return array
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
     public function sessionGet($sessionId)
     {
@@ -359,13 +211,7 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Retrieves an array of stats.
-     * The keys of the array are listed in the interface \Martial\Transmission\Argument\Session\Stats.
-     *
-     * @param string $sessionId
-     * @return array
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
     public function sessionStats($sessionId)
     {
@@ -375,14 +221,7 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Updates the blocklist.
-     * Returns the blocklist size.
-     *
-     * @param string $sessionId
-     * @return int
-     * @throws TransmissionException
-     * @throws CSRFException
-     * @throws BlocklistNotFoundException
+     * @inheritdoc
      */
     public function blocklistUpdate($sessionId)
     {
@@ -400,12 +239,7 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Checks if the incoming peer port is accessible from the outside world.
-     *
-     * @param string $sessionId
-     * @return bool
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
     public function portTest($sessionId)
     {
@@ -415,11 +249,7 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Closes the transmission session.
-     *
-     * @param string $sessionId
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
     public function sessionClose($sessionId)
     {
@@ -427,67 +257,39 @@ class RpcClient implements TransmissionAPI
     }
 
     /**
-     * Moves the given IDs to the top of the queue.
-     *
-     * @param string $sessionId
-     * @param array $ids
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function queueMoveTop($sessionId, array $ids)
+    public function queueMoveTop($sessionId, TorrentIdList $ids)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-top', ['ids' => $ids]));
+        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-top', ['ids' => $ids->getList()]));
     }
 
     /**
-     * Moves the given IDs to previous position in the queue.
-     *
-     * @param string $sessionId
-     * @param array $ids
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function queueMoveDown($sessionId, array $ids)
+    public function queueMoveDown($sessionId, TorrentIdList $ids)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-down', ['ids' => $ids]));
+        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-down', ['ids' => $ids->getList()]));
     }
 
     /**
-     * Moves the given IDs to the next potision in the queue.
-     *
-     * @param string $sessionId
-     * @param array $ids
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function queueMoveUp($sessionId, array $ids)
+    public function queueMoveUp($sessionId, TorrentIdList $ids)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-up', ['ids' => $ids]));
+        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-up', ['ids' => $ids->getList()]));
     }
 
     /**
-     * Moves the given IDs to the bottom of the queue.
-     *
-     * @param string $sessionId
-     * @param array $ids
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
-    public function queueMoveBottom($sessionId, array $ids)
+    public function queueMoveBottom($sessionId, TorrentIdList $ids)
     {
-        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-bottom', ['ids' => $ids]));
+        $this->sendRequest($sessionId, $this->buildRequestBody('queue-move-bottom', ['ids' => $ids->getList()]));
     }
 
     /**
-     * Tests how much free space is available in a client-specified folder.
-     * Returns an array of data whose the keys are defined in the interface
-     * \Martial\Transmission\Argument\Session\FreeSpace
-     *
-     * @param string $sessionId
-     * @param string $path
-     * @return array
-     * @throws TransmissionException
-     * @throws CSRFException
+     * @inheritdoc
      */
     public function freeSpace($sessionId, $path)
     {
@@ -509,10 +311,6 @@ class RpcClient implements TransmissionAPI
         $body->method = $method;
 
         if (!empty($arguments)) {
-            if (isset($arguments['ids']) && is_array($arguments['ids'])) {
-                $arguments['ids'] = array_values($arguments['ids']);
-            }
-
             $body->arguments = new \StdClass();
 
             foreach ($arguments as $argument => $value) {
@@ -536,11 +334,7 @@ class RpcClient implements TransmissionAPI
     private function sendRequest($sessionId, $requestBody)
     {
         try {
-            if (!is_null($this->logger)) {
-                $this->logger->debug('Request sent to the Transmission RPC API.', [
-                        'request' => $requestBody
-                ]);
-            }
+            $this->log('debug', 'Request sent to the Transmission RPC API.', ['request' => $requestBody]);
 
             $response = $this
                 ->httpClient
@@ -559,22 +353,16 @@ class RpcClient implements TransmissionAPI
                     $e->getResponse()->getHeader('X-Transmission-Session-Id')[0]
                 );
 
-                if (!is_null($this->logger)) {
-                    $this->logger->info('Invalid Transmission session ID. A new ID has been generated.', [
-                        'session_id' => $csrfException->getSessionId()
-                    ]);
-                }
+                $this->log('info', 'Invalid Transmission session ID. A new ID has been generated.', [
+                    'session_id' => $csrfException->getSessionId()
+                ]);
 
                 throw $csrfException;
             }
 
             throw $e;
         } catch (RequestException $e) {
-            if (!is_null($this->logger)) {
-                $this->logger->error('The Transmission RPC API returned a 500 error.', [
-                    'exception' => $e
-                ]);
-            }
+            $this->log('error', 'The Transmission RPC API returned a 500 error.', ['exception' => $e]);
 
             throw new TransmissionException('Transmission request error.', 0, $e);
         }
@@ -586,16 +374,11 @@ class RpcClient implements TransmissionAPI
             $e->setResult($responseBody['result']);
             $e->setArguments($responseBody['arguments']);
 
-            if (!is_null($this->logger)) {
-                $this->logger->error(
-                    'The Transmission RPC API returned an error with this request.',
-                    [
-                        'request' => $requestBody,
-                        'response' => $responseBody['result'],
-                        'exception' => $e
-                    ]
-                );
-            }
+            $this->log('error', 'The Transmission RPC API returned an error with this request.', [
+                'request' => $requestBody,
+                'response' => $responseBody['result'],
+                'exception' => $e
+            ]);
 
             throw $e;
         }
@@ -611,5 +394,12 @@ class RpcClient implements TransmissionAPI
         }
 
         return $responseBody;
+    }
+
+    private function log($level, $message, array $context = [])
+    {
+        if (!is_null($this->logger)) {
+            $this->logger->log($level, $message, $context);
+        }
     }
 }

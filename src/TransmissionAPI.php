@@ -2,8 +2,6 @@
 
 namespace Martial\Transmission\API;
 
-use Psr\Log\LoggerInterface;
-
 /**
  * The interface of the Transmission PHP client. Its behavior is as close to the original RPC API as possible. So, for more information about methods or arguments,
  * read the official API documentation.
@@ -29,51 +27,51 @@ interface TransmissionAPI
      * Starts the given torrents (all the torrents if no IDs are provided).
      *
      * @param string $sessionId
-     * @param int[] $ids
+     * @param TorrentIdList $ids
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentStart($sessionId, array $ids);
+    public function torrentStart($sessionId, TorrentIdList $ids);
 
     /**
      * Starts now the given torrents (all the torrents if no IDs are provided).
      *
      * @param string $sessionId
-     * @param int[] $ids
+     * @param TorrentIdList $ids
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentStartNow($sessionId, array $ids);
+    public function torrentStartNow($sessionId, TorrentIdList $ids);
 
     /**
      * Stops the given torrents (all the torrents if no IDs are provided).
      *
      * @param string $sessionId
-     * @param int[] $ids
+     * @param TorrentIdList $ids
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentStop($sessionId, array $ids);
+    public function torrentStop($sessionId, TorrentIdList $ids);
 
     /**
      * Verifies the given torrents (all the torrents if no IDs are provided).
      *
      * @param string $sessionId
-     * @param int[] $ids
+     * @param TorrentIdList $ids
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentVerify($sessionId, array $ids);
+    public function torrentVerify($sessionId, TorrentIdList $ids);
 
     /**
      * Reannonces the given torrents (all the torrents if no IDs are provided).
      *
      * @param string $sessionId
-     * @param int[] $ids
+     * @param TorrentIdList $ids
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentReannounce($sessionId, array $ids);
+    public function torrentReannounce($sessionId, TorrentIdList $ids);
 
     /**
      * Applies the given arguments with their values to the given torrent IDs.
@@ -86,12 +84,12 @@ interface TransmissionAPI
      * </code>
      *
      * @param string $sessionId
-     * @param array $ids
+     * @param TorrentIdList $ids
      * @param array $argumentsWithValues
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentSet($sessionId, array $ids, array $argumentsWithValues);
+    public function torrentSet($sessionId, TorrentIdList $ids, array $argumentsWithValues);
 
     /**
      * Retrieves the data of the given fields for the given torrent IDs.
@@ -114,13 +112,13 @@ interface TransmissionAPI
      * </code>
      *
      * @param string $sessionId
-     * @param array $ids
+     * @param TorrentIdList $ids
      * @param array $fields
      * @return array
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentGet($sessionId, array $ids, array $fields = []);
+    public function torrentGet($sessionId, TorrentIdList $ids, array $fields = []);
 
     /**
      * Adds a torrent to the download queue.
@@ -150,12 +148,12 @@ interface TransmissionAPI
      * All torrents are used if the "ids" array is empty.
      *
      * @param string $sessionId
-     * @param array $ids
+     * @param TorrentIdList $ids
      * @param bool $deleteLocalData
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentRemove($sessionId, array $ids, $deleteLocalData = false);
+    public function torrentRemove($sessionId, TorrentIdList $ids, $deleteLocalData = false);
 
     /**
      * Moves the given torrent IDs.
@@ -163,13 +161,13 @@ interface TransmissionAPI
      * All torrents are used if the "ids" array is empty.
      *
      * @param string $sessionId
-     * @param array $ids
+     * @param TorrentIdList $ids
      * @param string $location
      * @param bool $move
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function torrentSetLocation($sessionId, array $ids, $location, $move = false);
+    public function torrentSetLocation($sessionId, TorrentIdList $ids, $location, $move = false);
 
     /**
      * Renames a torrent path.
@@ -262,41 +260,41 @@ interface TransmissionAPI
      * Moves the given IDs to the top of the queue.
      *
      * @param string $sessionId
-     * @param array $ids
+     * @param TorrentIdList $ids
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function queueMoveTop($sessionId, array $ids);
+    public function queueMoveTop($sessionId, TorrentIdList $ids);
 
     /**
      * Moves the given IDs to previous position in the queue.
      *
      * @param string $sessionId
-     * @param array $ids
+     * @param TorrentIdList $ids
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function queueMoveDown($sessionId, array $ids);
+    public function queueMoveDown($sessionId, TorrentIdList $ids);
 
     /**
      * Moves the given IDs to the next potision in the queue.
      *
      * @param string $sessionId
-     * @param array $ids
+     * @param TorrentIdList $ids
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function queueMoveUp($sessionId, array $ids);
+    public function queueMoveUp($sessionId, TorrentIdList $ids);
 
     /**
      * Moves the given IDs to the bottom of the queue.
      *
      * @param string $sessionId
-     * @param array $ids
+     * @param TorrentIdList $ids
      * @throws TransmissionException
      * @throws CSRFException
      */
-    public function queueMoveBottom($sessionId, array $ids);
+    public function queueMoveBottom($sessionId, TorrentIdList $ids);
 
     /**
      * Tests how much free space is available in a client-specified folder.
@@ -310,11 +308,4 @@ interface TransmissionAPI
      * @throws CSRFException
      */
     public function freeSpace($sessionId, $path);
-
-    /**
-     * Injects a logger.
-     *
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger);
 }

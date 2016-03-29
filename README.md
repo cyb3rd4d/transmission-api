@@ -12,7 +12,7 @@ with PHPUnit and as close as possible from the original RPC interface.
 With composer:
 
 ```sh
-composer require 'martial/transmission-api:~1.0'
+composer require 'martial/transmission-api:~2.0'
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ You may want to use a logger:
 $logger = new \Monolog\Logger('transmission');
 $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
 
-$api->setLogger($logger);
+$api = new \Martial\Transmission\API\RpcClient($httpClient, 'rpc-username', 'rpc-password', $logger);
 ```
 
 ### Session ID

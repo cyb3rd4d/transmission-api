@@ -2,7 +2,7 @@
     "name": "martial/transmission-api",
     "description": "A PHP client for the Transmission RPC API.",
     "type": "library",
-    "license": "GPL-V2",
+    "license": "AGPL-3.0-or-later",
     "authors": [
         {
             "name": "Martial Saunois",
